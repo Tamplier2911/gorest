@@ -13,7 +13,7 @@ func (s *Service) NewMySQL() (*gorm.DB, error) {
 
 	// configure mysql connection
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", 
+		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		s.Config.MySQLUser, s.Config.MySQLPass, s.Config.MySQLHost, s.Config.MySQLDatabase,
 	)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -21,7 +21,7 @@ func (s *Service) NewMySQL() (*gorm.DB, error) {
 		PrepareStmt: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to postgresql: %s", err)
+		return nil, fmt.Errorf("failed to connect to my sqlserver: %s", err)
 	}
 
 	// create uuid extension
