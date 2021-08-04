@@ -50,13 +50,13 @@ func (s *Service) Initialize(options *InitializeOptions) {
 
 	// create mysql connection with gorm package
 	if options.MySQL {
-		s.Logger.Infow("connecting to postgresql", "config", s.Config)
+		s.Logger.Infow("connecting to mysql server", "config", s.Config)
 		db, err := s.NewMySQL()
 		if err != nil {
-			s.Logger.Fatalw("failed to connect to postgresql", "config", s.Config, "err", err)
+			s.Logger.Fatalw("failed to connect to mysql server", "config", s.Config, "err", err)
 		}
 		s.MySQL = db
-		s.Logger.Debugw("connected to postgresql")
+		s.Logger.Debugw("connected to mysql server")
 	}
 
 }
