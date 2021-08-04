@@ -1,0 +1,12 @@
+{
+    "folders": [
+        {
+            "path": "gorest"
+        },
+        {
+            "path": "pkg"
+        },
+    ],
+    "settings": {
+    }
+}
