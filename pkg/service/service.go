@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Tamplier2911/gorest/pkg"
+	"github.com/Tamplier2911/gorest/pkg/config"
+	"github.com/Tamplier2911/gorest/pkg/logger"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -45,7 +46,7 @@ func (s *Service) Initialize(options *InitializeOptions) {
 	s.Server = server
 
 	// create router
-	// s.Router = 
+	// s.Router =
 
 	// create mysql connection with gorm package
 	if options.MySQL {
