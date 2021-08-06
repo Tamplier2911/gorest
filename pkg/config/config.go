@@ -13,7 +13,7 @@ type Config struct {
 
 	// logger
 	LogLevel    string `mapstructure:"log_level"`
-	LogResponse bool   `mapstructure:"mysql_database"`
+	LogResponse bool   `mapstructure:"log_response"`
 
 	// base url
 	BaseURL string `mapstructure:"base_url"`
