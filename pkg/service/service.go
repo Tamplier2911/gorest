@@ -16,7 +16,7 @@ type Service struct {
 	Config *config.Config
 	Logger *zap.SugaredLogger
 	Server *http.Server
-	// Router
+	Router *http.ServeMux
 
 	// optional
 	MySQL *gorm.DB
@@ -29,7 +29,7 @@ type InitializeOptions struct {
 func (s *Service) Initialize(options *InitializeOptions) {
 	var err error
 
-	// read config
+	// create config
 	s.Config = config.New()
 
 	// create logger
@@ -37,17 +37,17 @@ func (s *Service) Initialize(options *InitializeOptions) {
 		New(s.Config.LogLevel, s.Config.Production).
 		Named("Service")
 
+	// create router
+	s.Router = http.NewServeMux()
+
 	// create server
 	s.Server = &http.Server{
 		Addr:           fmt.Sprintf(":%s", s.Config.Port),
-		Handler:        nil,
+		Handler:        s.Router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-
-	// create router
-	// s.Router =
 
 	// create mysql connection with gorm package
 	if options.MySQL {
@@ -56,12 +56,13 @@ func (s *Service) Initialize(options *InitializeOptions) {
 		if err != nil {
 			s.Logger.Fatalw("failed to connect to mysql server", "config", s.Config, "err", err)
 		}
-		s.Logger.Debugw("connected to mysql server")
+		s.Logger.Infow("successfully connected to mysql server")
 	}
 
 }
 
 func (s *Service) Start() {
+	s.Logger.Infow(fmt.Sprintf("starting http server on port %s", s.Server.Addr))
 	err := s.Server.ListenAndServe()
 	if err != nil {
 		s.Logger.Fatalw("failed to start server", "err", err)
