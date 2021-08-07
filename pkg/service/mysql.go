@@ -24,13 +24,14 @@ func (s *Service) NewMySQL() (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to my sqlserver: %s", err)
 	}
 
-	// create uuid extension
-	err = db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error
+	// create database
+	s.Logger.Info("initializing database")
+	err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", s.Config.MySQLDatabase)).Error
 	if err != nil {
-		return nil, fmt.Errorf("failed to create uuid-ossp extension: %s", err)
+		s.Logger.Fatalw("failed to create database", "err", err)
 	}
 
-	// autopigrate models
+	// automigrate global models
 	// err = db.AutoMigrate(&models.User{})
 	// if err != nil {
 	// 	return nil, fmt.Errorf("failed to run migrations: %s", err)
