@@ -32,7 +32,7 @@ func (s *Monolith) Setup() {
 			// handle get one
 			// w.WriteHeader(http.StatusOK)
 			// handle get all with limit and offset
-			w.WriteHeader(http.StatusOK)
+			s.GetPostsHandler(w, r)
 		case http.MethodPost:
 			// handle creat one
 			s.CreatePostHandler(w, r)
