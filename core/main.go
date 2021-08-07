@@ -1,7 +1,32 @@
 package main
 
-import "fmt"
+import (
+	"github.com/Tamplier2911/gorest/pkg/service"
+)
+
+type Monolith struct {
+	service.Service
+}
+
+func (s *Monolith) Setup() {
+	s.Initialize(&service.InitializeOptions{
+		MySQL: true,
+	})
+
+	// set port - default 8080
+	s.Server.Addr = ":3000"
+
+	// automigrate models
+	s.Logger.Info("automigrating models")
+	err := s.MySQL.AutoMigrate(&Post{})
+	if err != nil {
+		s.Logger.Fatalw("failed to automigrate models", "err", err)
+	}
+
+}
 
 func main() {
-	fmt.Println("Let's Go!")
+	s := Monolith{}
+	s.Setup()
+	s.Start()
 }
