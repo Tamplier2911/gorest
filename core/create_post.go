@@ -26,18 +26,18 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// parse body data
 	logger.Infow("parsing request body")
-	var req CreatePostRequestBody
-	err := json.NewDecoder(r.Body).Decode(&req)
+	var body CreatePostRequestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger = logger.With("req", req)
+	logger = logger.With("body", body)
 
 	// parse uuid id
 	logger.Infow("parsing uuid from path")
-	uid, err := uuid.Parse(string(req.UserID))
+	uid, err := uuid.Parse(string(body.UserID))
 	if err != nil {
 		logger.Errorw("failed to parse", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -49,8 +49,8 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Infow("saving post to database")
 	post := Post{
 		UserID: uid,
-		Title:  req.Title,
-		Body:   req.Body,
+		Title:  body.Title,
+		Body:   body.Body,
 	}
 	err = s.MySQL.Model(&Post{}).Create(&post).Error
 	if err != nil {
@@ -81,6 +81,6 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers based
 	w.Header().Set("Content-Type", "application/json")
 
-	logger.Debugw("successfully return all posts")
+	logger.Debugw("successfully created post record in database")
 	w.Write(b)
 }

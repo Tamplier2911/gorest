@@ -28,7 +28,6 @@ func (s *Monolith) Setup() {
 	// TODO: consider refactoring this and abstracting into a router
 	// configure router
 	s.Router.HandleFunc("/v1/posts", func(w http.ResponseWriter, r *http.Request) {
-
 		switch r.Method {
 		case http.MethodGet:
 			s.GetPostsHandler(w, r)
@@ -37,23 +36,19 @@ func (s *Monolith) Setup() {
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
-
 	})
 
 	s.Router.HandleFunc("/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
-
 		switch r.Method {
 		case http.MethodGet:
 			s.GetPostHandler(w, r)
 		case http.MethodPut:
-			// s.UpdatePostHandler(w, r)
-			s.GetPostsHandler(w, r)
+			s.UpdatePostHandler(w, r)
 		case http.MethodDelete:
 			s.DeletePostHandler(w, r)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
-
 	})
 
 }

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 // Represent output data of DeletePostHandler
@@ -44,16 +43,13 @@ func (s *Monolith) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// delete post from database
 	logger.Infow("deleting post from database")
-	err = s.MySQL.Model(&Post{}).Delete(&Post{ID: uid}).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			logger.Errorw("failed find post with provided id in database", "err", err)
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
+	result := s.MySQL.Model(&Post{}).Delete(&Post{ID: uid})
+	if result.Error != nil || result.RowsAffected == 0 {
+		if result.Error == nil {
+			result.Error = errors.New("record not found")
 		}
-
 		logger.Errorw("failed to delete post with provided id from database", "err", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 

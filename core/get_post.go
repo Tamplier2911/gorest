@@ -12,7 +12,7 @@ import (
 
 // Represent output data of GetPostHandler
 type GetPostHandlerResponseBody struct {
-	Post    Post   `json:"post" xml:"posts"`
+	Post    *Post  `json:"post" xml:"posts"`
 	Message string `json:"message" xml:"message"`
 }
 
@@ -46,7 +46,7 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive post from database
 	logger.Infow("getting post from database")
 	var post Post
-	err = s.MySQL.Model(&Post{}).Where(&Post{ID: uid}).Find(&post).Error
+	err = s.MySQL.Model(&Post{}).Where(&Post{ID: uid}).First(&post).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)
@@ -63,7 +63,7 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	// assemble response body
 	logger.Infow("assembling response body")
 	res := GetPostHandlerResponseBody{
-		Post:    post,
+		Post:    &post,
 		Message: "successfully retrieved post",
 	}
 	logger = logger.With("res", res)
@@ -80,6 +80,6 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.Header().Set("Content-Type", "application/json")
 
-	logger.Infow("successfully retrieved post by id")
+	logger.Infow("successfully retrieved post by id from database")
 	w.Write(b)
 }

@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+
+	"gorm.io/gorm/clause"
 )
 
 // Represent output data of GetPostsHandler
@@ -21,7 +23,13 @@ func (s *Monolith) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Infow("getting posts from database")
 	var total int64
 	var posts []Post
-	err := s.MySQL.Model(&Post{}).Count(&total).Limit(10).Offset(0).Find(&posts).Error
+	err := s.MySQL.Model(&Post{}).
+		Count(&total).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
+		Limit(10).
+		Offset(0).
+		Find(&posts).
+		Error
 	if err != nil {
 		logger.Errorw("failed to get posts from database", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -50,6 +58,6 @@ func (s *Monolith) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.Header().Set("Content-Type", "application/json")
 
-	logger.Infow("successfully return all posts")
+	logger.Infow("successfully retrieved all posts from database")
 	w.Write(b)
 }
