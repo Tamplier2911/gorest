@@ -49,8 +49,7 @@ func (s *Monolith) Setup() {
 			// s.UpdatePostHandler(w, r)
 			s.GetPostsHandler(w, r)
 		case http.MethodDelete:
-			// s.DeletePostHandler(w, r)
-			s.GetPostsHandler(w, r)
+			s.DeletePostHandler(w, r)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}

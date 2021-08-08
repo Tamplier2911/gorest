@@ -10,15 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// Represent output data of GetPostHandler
-type GetPostHandlerResponseBody struct {
-	Post    Post   `json:"post" xml:"posts"`
+// Represent output data of DeletePostHandler
+type DeletePostHandlerResponseBody struct {
 	Message string `json:"message" xml:"message"`
 }
 
-// Gets post by provided id from database, returns posts
-func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := s.Logger.Named("GetPostHandler")
+// Deletes post by provided id from database
+func (s *Monolith) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
+	logger := s.Logger.Named("DeletePostsHandler")
 
 	// TODO: consider abstracting this to a middleware
 	// get id from path
@@ -43,28 +42,25 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("uid", uid)
 
-	// retreive post from database
-	logger.Infow("getting post from database")
-	var post Post
-	err = s.MySQL.Model(&Post{}).Where(&Post{ID: uid}).Find(&post).Error
+	// delete post from database
+	logger.Infow("deleting post from database")
+	err = s.MySQL.Model(&Post{}).Delete(&Post{ID: uid}).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			logger.Errorw("failed to find post with provided id in database", "err", err)
+			logger.Errorw("failed find post with provided id in database", "err", err)
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
 
-		logger.Errorw("failed to get posts from database", "err", err)
+		logger.Errorw("failed to delete post with provided id from database", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	logger = logger.With("post", post)
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := GetPostHandlerResponseBody{
-		Post:    post,
-		Message: "successfully retrieved post",
+	res := DeletePostHandlerResponseBody{
+		Message: "successfully deleted post from database",
 	}
 	logger = logger.With("res", res)
 
@@ -80,6 +76,6 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.Header().Set("Content-Type", "application/json")
 
-	logger.Infow("successfully retrieved post by id")
+	logger.Infow("successfully deleted post from database")
 	w.Write(b)
 }
