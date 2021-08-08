@@ -9,9 +9,9 @@ import (
 
 // Represent input data of CreatePostHandler
 type CreatePostRequestBody struct {
-	UserID uuid.UUID `json:"userId" form:"userId" url:"userId" binding:"required"`
-	Title  string    `json:"title" form:"title" url:"title" binding:"required"`
-	Body   string    `json:"body" form:"body" url:"body" binding:"required"`
+	UserID string `json:"userId" form:"userId" url:"userId" binding:"required"`
+	Title  string `json:"title" form:"title" url:"title" binding:"required"`
+	Body   string `json:"body" form:"body" url:"body" binding:"required"`
 }
 
 // Represent output data of CreatePostHandler
@@ -35,10 +35,20 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("req", req)
 
+	// parse uuid id
+	logger.Infow("parsing uuid from path")
+	uid, err := uuid.Parse(string(req.UserID))
+	if err != nil {
+		logger.Errorw("failed to parse", "err", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	logger = logger.With("uid", uid)
+
 	// save instance of post in database
 	logger.Infow("saving post to database")
 	post := Post{
-		UserID: req.UserID,
+		UserID: uid,
 		Title:  req.Title,
 		Body:   req.Body,
 	}

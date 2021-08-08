@@ -25,27 +25,36 @@ func (s *Monolith) Setup() {
 		s.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
+	// TODO: consider refactoring this and abstracting into a router
 	// configure router
 	s.Router.HandleFunc("/v1/posts", func(w http.ResponseWriter, r *http.Request) {
+
 		switch r.Method {
 		case http.MethodGet:
-			// handle get one
-			// w.WriteHeader(http.StatusOK)
-			// handle get all with limit and offset
 			s.GetPostsHandler(w, r)
 		case http.MethodPost:
-			// handle creat one
 			s.CreatePostHandler(w, r)
-		case http.MethodPut:
-			// handle update one
-			w.WriteHeader(http.StatusOK)
-		case http.MethodDelete:
-			// handle delete one
-			w.WriteHeader(http.StatusNoContent)
 		default:
-			// bad request
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusNotFound)
 		}
+
+	})
+
+	s.Router.HandleFunc("/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
+
+		switch r.Method {
+		case http.MethodGet:
+			s.GetPostHandler(w, r)
+		case http.MethodPut:
+			// s.UpdatePostHandler(w, r)
+			s.GetPostsHandler(w, r)
+		case http.MethodDelete:
+			// s.DeletePostHandler(w, r)
+			s.GetPostsHandler(w, r)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+
 	})
 
 }

@@ -23,7 +23,7 @@ func (s *Monolith) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 	err := s.MySQL.Model(&Post{}).Count(&total).Limit(10).Offset(0).Find(&posts).Error
 	if err != nil {
-		logger.Errorw("failed to get posts from dataabase", "err", err)
+		logger.Errorw("failed to get posts from database", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
