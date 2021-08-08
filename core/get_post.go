@@ -79,6 +79,7 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// write headers
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	logger.Infow("successfully retrieved post by id from database")
 	w.Write(b)

@@ -71,6 +71,7 @@ func (s *Monolith) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// write headers
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	logger.Infow("successfully deleted post from database")
 	w.Write(b)

@@ -80,6 +80,7 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// write headers based
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 
 	logger.Debugw("successfully created post record in database")
 	w.Write(b)

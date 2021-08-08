@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"gorm.io/gorm/clause"
 )
@@ -18,16 +19,46 @@ type GetPostsHandlerResponseBody struct {
 func (s *Monolith) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	logger := s.Logger.Named("GetPostsHandler")
 
-	// TODO: define limits and offsets with query params
+	// define db statement
+	stmt := s.MySQL.Model(&Post{})
+
+	// TODO: consider refactoring that
+
+	// get limit from query parameters
+	limit := r.FormValue("limit")
+	if limit != "" {
+		logger.Infow("parsing limit query")
+		lm, err := strconv.Atoi(limit)
+		if err != nil {
+			logger.Infow("invalid limit query")
+			stmt.Limit(10)
+		} else {
+			stmt.Limit(lm)
+			logger = logger.With("limit", lm)
+		}
+	}
+
+	// get offset from query parameters
+	offset := r.FormValue("offset")
+	if offset != "" {
+		logger.Infow("parsing offset query")
+		of, err := strconv.Atoi(offset)
+		if err != nil {
+			logger.Infow("invalid offset query")
+			stmt.Offset(0)
+		} else {
+			stmt.Offset(of)
+			logger = logger.With("offset", of)
+		}
+	}
+
 	// retreive posts from database
 	logger.Infow("getting posts from database")
 	var total int64
 	var posts []Post
-	err := s.MySQL.Model(&Post{}).
+	err := stmt.
 		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
-		Limit(10).
-		Offset(0).
 		Find(&posts).
 		Error
 	if err != nil {
@@ -57,6 +88,7 @@ func (s *Monolith) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// write headers
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	logger.Infow("successfully retrieved all posts from database")
 	w.Write(b)
