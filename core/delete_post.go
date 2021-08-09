@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"net/http"
 	"strings"
@@ -60,9 +61,23 @@ func (s *Monolith) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("res", res)
 
-	// response with xml or json based on condition
-	logger.Infow("marshaling response body")
-	b, err := json.Marshal(res)
+	// get clients accept header
+	accept := r.Header.Get("Accept")
+
+	var b []byte
+	switch accept {
+	case string(MimeTypesXML):
+		// response with xml
+		logger.Infow("marshaling response body to xml")
+		w.Header().Set("Content-Type", string(MimeTypesXML))
+		b, err = xml.Marshal(res)
+	default:
+		// default response with json
+		logger.Infow("marshaling response body to json")
+		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		b, err = json.Marshal(res)
+	}
+
 	if err != nil {
 		logger.Errorw("failed to marshal response body", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,7 +85,6 @@ func (s *Monolith) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// write headers
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	logger.Infow("successfully deleted post from database")

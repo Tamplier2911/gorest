@@ -15,7 +15,7 @@ func (s *Monolith) Setup() {
 		MySQL: true,
 	})
 
-	// set port - default 8080
+	// set port - default 8080 || export GOREST_PORT='3000'
 	s.Server.Addr = ":3000"
 
 	// automigrate models
@@ -25,7 +25,10 @@ func (s *Monolith) Setup() {
 		s.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
+	// TODO: is it possible to add all posts endpoints to sub directory to abstract it away
 	// TODO: consider refactoring this and abstracting into a router
+	// TODO: create cruds for comments
+
 	// configure router
 	s.Router.HandleFunc("/v1/posts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -33,8 +36,6 @@ func (s *Monolith) Setup() {
 			s.GetPostsHandler(w, r)
 		case http.MethodPost:
 			s.CreatePostHandler(w, r)
-		default:
-			w.WriteHeader(http.StatusNotFound)
 		}
 	})
 
@@ -46,8 +47,6 @@ func (s *Monolith) Setup() {
 			s.UpdatePostHandler(w, r)
 		case http.MethodDelete:
 			s.DeletePostHandler(w, r)
-		default:
-			w.WriteHeader(http.StatusNotFound)
 		}
 	})
 

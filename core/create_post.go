@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -67,19 +68,30 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("res", res)
 
-	// response with xml or json based on condition
+	// get clients accept header
+	accept := r.Header.Get("Accept")
 
-	// marshal json into bytes
-	logger.Infow("marshaling response body")
-	b, err := json.Marshal(res)
+	var b []byte
+	switch accept {
+	case string(MimeTypesXML):
+		// response with xml
+		logger.Infow("marshaling response body to xml")
+		w.Header().Set("Content-Type", string(MimeTypesXML))
+		b, err = xml.Marshal(res)
+	default:
+		// default response with json
+		logger.Infow("marshaling response body to json")
+		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		b, err = json.Marshal(res)
+	}
+
 	if err != nil {
 		logger.Errorw("failed to marshal response body", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// write headers based
-	w.Header().Set("Content-Type", "application/json")
+	// write headers
 	w.WriteHeader(http.StatusCreated)
 
 	logger.Debugw("successfully created post record in database")

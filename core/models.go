@@ -22,3 +22,24 @@ func (p *Post) BeforeCreate(tx *gorm.DB) (err error) {
 	p.ID = uuid.New()
 	return
 }
+
+// SubscriptionStatus represents subscription statuses.
+type SubscriptionStatus string
+
+// Subscription statuses
+const (
+	SubscriptionStatusActive            SubscriptionStatus = "active"
+	SubscriptionStatusPending           SubscriptionStatus = "pending"
+	SubscriptionStatusPaymentFailed     SubscriptionStatus = "payment_failed"
+	SubscriptionStatusCancelAtPeriodEnd SubscriptionStatus = "cancel_at_period_end"
+	SubscriptionStatusCanceled          SubscriptionStatus = "canceled"
+)
+
+// MimeType represent mime types of sort.
+type MimeType string
+
+// Mime types.
+const (
+	MimeTypesXML  MimeType = "application/xml"
+	MimeTypesJSON MimeType = "application/json"
+)
