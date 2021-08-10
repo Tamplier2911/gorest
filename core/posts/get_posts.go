@@ -1,4 +1,4 @@
-package main
+package posts
 
 import (
 	"encoding/json"
@@ -17,11 +17,11 @@ type GetPostsHandlerResponseBody struct {
 }
 
 // Get all posts from database, takes limit and offset query parameters, returns posts
-func (s *Monolith) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
-	logger := s.Logger.Named("GetPostsHandler")
+func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
+	logger := p.ctx.Logger.Named("GetPostsHandler")
 
 	// define db statement
-	stmt := s.MySQL.Model(&Post{})
+	stmt := p.ctx.MySQL.Model(&Post{})
 
 	// TODO: consider refactoring that
 

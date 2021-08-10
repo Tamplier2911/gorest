@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/core/posts"
 	"github.com/Tamplier2911/gorest/pkg/service"
 )
 
@@ -20,35 +21,39 @@ func (s *Monolith) Setup() {
 
 	// automigrate models
 	s.Logger.Info("automigrating models")
-	err := s.MySQL.AutoMigrate(&Post{})
+	err := s.MySQL.AutoMigrate(&posts.Post{})
 	if err != nil {
 		s.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
-	// TODO: is it possible to add all posts endpoints to sub directory to abstract it away
-	// TODO: consider refactoring this and abstracting into a router
-	// TODO: create cruds for comments
+	// posts
+	posts := posts.Posts{}
+	posts.Setup(&s.Service)
 
 	// configure router
 	s.Router.HandleFunc("/v1/posts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			s.GetPostsHandler(w, r)
+			posts.GetPostsHandler(w, r)
 		case http.MethodPost:
-			s.CreatePostHandler(w, r)
+			posts.CreatePostHandler(w, r)
 		}
 	})
 
 	s.Router.HandleFunc("/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			s.GetPostHandler(w, r)
+			posts.GetPostHandler(w, r)
 		case http.MethodPut:
-			s.UpdatePostHandler(w, r)
+			posts.UpdatePostHandler(w, r)
 		case http.MethodDelete:
-			s.DeletePostHandler(w, r)
+			posts.DeletePostHandler(w, r)
 		}
 	})
+
+	// comments
+
+	// TODO: create cruds for comments
 
 }
 

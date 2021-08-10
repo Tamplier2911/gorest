@@ -1,4 +1,4 @@
-package main
+package posts
 
 import (
 	"encoding/json"
@@ -18,14 +18,14 @@ type GetPostHandlerResponseBody struct {
 }
 
 // Gets post by provided id from database, returns posts
-func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := s.Logger.Named("GetPostHandler")
+func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
+	logger := p.ctx.Logger.Named("GetPostHandler")
 
 	// TODO: consider abstracting this to a middleware
 	// get id from path
 	logger.Infow("getting id from path")
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	pathSlice := strings.Split(r.URL.Path, "/")
+	id := pathSlice[len(pathSlice)-1]
 	if id == "" {
 		err := errors.New("failed to get id from path")
 		logger.Errorw("failed to get id from path", "err", err)
@@ -47,7 +47,7 @@ func (s *Monolith) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive post from database
 	logger.Infow("getting post from database")
 	var post Post
-	err = s.MySQL.Model(&Post{}).Where(&Post{ID: uid}).First(&post).Error
+	err = p.ctx.MySQL.Model(&Post{}).Where(&Post{ID: uid}).First(&post).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)

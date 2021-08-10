@@ -1,4 +1,4 @@
-package main
+package posts
 
 import (
 	"encoding/json"
@@ -22,8 +22,8 @@ type CreatePostResponseBody struct {
 }
 
 // Creates post instance and stores it in database
-func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := s.Logger.Named("CreatePostHandler")
+func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
+	logger := p.ctx.Logger.Named("CreatePostHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
@@ -53,7 +53,7 @@ func (s *Monolith) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		Title:  body.Title,
 		Body:   body.Body,
 	}
-	err = s.MySQL.Model(&Post{}).Create(&post).Error
+	err = p.ctx.MySQL.Model(&Post{}).Create(&post).Error
 	if err != nil {
 		logger.Errorw("failed to save post in database", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
