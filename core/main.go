@@ -40,6 +40,7 @@ func (m *Monolith) Setup() {
 		case http.MethodPost:
 			posts.CreatePostHandler(w, r)
 		}
+		w.WriteHeader(http.StatusNotFound)
 	})
 
 	m.Router.HandleFunc("/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +52,7 @@ func (m *Monolith) Setup() {
 		case http.MethodDelete:
 			posts.DeletePostHandler(w, r)
 		}
+		w.WriteHeader(http.StatusNotFound)
 	})
 
 	// comments
@@ -63,8 +65,9 @@ func (m *Monolith) Setup() {
 		case http.MethodGet:
 			// comments.GetPostsHandler(w, r)
 		case http.MethodPost:
-			// comments.CreatePostHandler(w, r)
+			comments.CreateCommentHandler(w, r)
 		}
+		w.WriteHeader(http.StatusNotFound)
 	})
 
 	m.Router.HandleFunc("/v1/comments/", func(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +79,7 @@ func (m *Monolith) Setup() {
 		case http.MethodDelete:
 			// comments.DeletePostHandler(w, r)
 		}
+		w.WriteHeader(http.StatusNotFound)
 	})
 
 }

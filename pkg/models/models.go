@@ -30,11 +30,13 @@ type Comment struct {
 	Base
 
 	PostID uuid.UUID `json:"postId" xml:"postId" gorm:"column:post_id;type:char(36);index;not null"`
-	Email  string    `json:"email" xml:"email" gorm:"column:email;index;not null"`
-	Name   string    `json:"name" xml:"name" gorm:"column:name;not null"`
-	Body   string    `json:"body" xml:"body" gorm:"column:body;not null"`
+	UserID uuid.UUID `json:"userId" xml:"userId" gorm:"column:user_id;type:char(36);index;not null"`
+
+	Name string `json:"name" xml:"name" gorm:"column:name;not null"`
+	Body string `json:"body" xml:"body" gorm:"column:body;not null"`
 
 	Post Post `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PostID"`
+	// User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
 }
 
 func (b *Base) BeforeCreate(tx *gorm.DB) (err error) {

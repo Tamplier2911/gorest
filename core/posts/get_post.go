@@ -38,7 +38,7 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Infow("parsing uuid from path")
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		logger.Errorw("failed to parse", "err", err)
+		logger.Errorw("failed to parse uuid", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

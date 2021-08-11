@@ -1,4 +1,4 @@
-package posts
+package comments
 
 import (
 	"encoding/json"
@@ -8,26 +8,27 @@ import (
 	"github.com/google/uuid"
 )
 
-// Represent input data of CreatePostHandler
-type CreatePostRequestBody struct {
+// Represent input data of CreateCommentHandler
+type CreateCommentRequestBody struct {
+	PostID string `json:"postId" form:"postId" url:"postId" binding:"required"`
 	UserID string `json:"userId" form:"userId" url:"userId" binding:"required"`
-	Title  string `json:"title" form:"title" url:"title" binding:"required"`
+	Name   string `json:"name" form:"name" url:"name" binding:"required"`
 	Body   string `json:"body" form:"body" url:"body" binding:"required"`
 }
 
-// Represent output data of CreatePostHandler
-type CreatePostResponseBody struct {
-	Post    *Post  `json:"post" xml:"post"`
-	Message string `json:"message" xml:"message"`
+// Represent output data of CreateCommentHandler
+type CreateCommentResponseBody struct {
+	Comment *Comment `json:"comment" xml:"comment"`
+	Message string   `json:"message" xml:"message"`
 }
 
-// Creates post instance and stores it in database
-func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("CreatePostHandler")
+// Creates comment instance and stores it in database
+func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
+	logger := c.ctx.Logger.Named("CreateCommentHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
-	var body CreatePostRequestBody
+	var body CreateCommentRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
@@ -37,34 +38,43 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger = logger.With("body", body)
 
 	// parse uuid id
-	logger.Infow("parsing uuid from body")
-	uid, err := uuid.Parse(string(body.UserID))
+	logger.Infow("parsing uuids from body")
+	postUuid, err := uuid.Parse(string(body.PostID))
 	if err != nil {
-		logger.Errorw("failed to parse uuid from body", "err", err)
+		logger.Errorw("failed to parse uuids from body", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("postUuid", postUuid)
 
-	// save instance of post in database
-	logger.Infow("saving post to database")
-	post := Post{
-		UserID: uid,
-		Title:  body.Title,
+	userUuid, err := uuid.Parse(string(body.UserID))
+	if err != nil {
+		logger.Errorw("failed to parse uuids from body", "err", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	logger = logger.With("userUuid", userUuid)
+
+	// save instance of comment in database
+	logger.Infow("saving comment to database")
+	comment := Comment{
+		UserID: userUuid,
+		PostID: postUuid,
+		Name:   body.Name,
 		Body:   body.Body,
 	}
-	err = p.ctx.MySQL.Model(&Post{}).Create(&post).Error
+	err = c.ctx.MySQL.Model(&Comment{}).Create(&comment).Error
 	if err != nil {
-		logger.Errorw("failed to save post in database", "err", err)
+		logger.Errorw("failed to save comment in database", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := CreatePostResponseBody{
-		Post:    &post,
-		Message: "successfully created post",
+	res := CreateCommentResponseBody{
+		Comment: &comment,
+		Message: "successfully created comment",
 	}
 	logger = logger.With("res", res)
 
