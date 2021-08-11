@@ -22,6 +22,7 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.ctx.Logger.Named("GetPostHandler")
 
 	// TODO: consider abstracting this to a middleware
+
 	// get id from path
 	logger.Infow("getting id from path")
 	pathSlice := strings.Split(r.URL.Path, "/")
