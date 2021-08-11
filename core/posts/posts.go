@@ -1,6 +1,8 @@
 package posts
 
-import "github.com/Tamplier2911/gorest/pkg/service"
+import (
+	"github.com/Tamplier2911/gorest/pkg/service"
+)
 
 type Posts struct {
 	ctx *service.Service

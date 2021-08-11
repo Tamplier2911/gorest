@@ -17,8 +17,8 @@ type CreatePostRequestBody struct {
 
 // Represent output data of CreatePostHandler
 type CreatePostResponseBody struct {
-	Post    *Post  `json:"post"`
-	Message string `json:"message"`
+	Post    *Post  `json:"post" xml:"post"`
+	Message string `json:"message" xml:"message"`
 }
 
 // Creates post instance and stores it in database

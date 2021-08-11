@@ -18,7 +18,7 @@ type UpdatePostRequestBody struct {
 
 // Represent output data of UpdatePostHandler
 type UpdatePostResponseBody struct {
-	Message string `json:"message"`
+	Message string `json:"message" xml:"message"`
 }
 
 // Updates post instance in database
