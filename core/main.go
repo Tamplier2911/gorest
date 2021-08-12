@@ -63,7 +63,7 @@ func (m *Monolith) Setup() {
 	m.Router.HandleFunc("/v1/comments", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			// comments.GetPostsHandler(w, r)
+			comments.GetCommentsHandler(w, r)
 		case http.MethodPost:
 			comments.CreateCommentHandler(w, r)
 		}
