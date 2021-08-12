@@ -18,7 +18,7 @@ type UpdatePostRequestBody struct {
 
 // Represent output data of UpdatePostHandler
 type UpdatePostResponseBody struct {
-	Message string `json:"message"`
+	Message string `json:"message" xml:"message"`
 }
 
 // Updates post instance in database
@@ -26,6 +26,7 @@ func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.ctx.Logger.Named("UpdatePostHandler")
 
 	// TODO: consider abstracting this to a middleware
+
 	// get id from path
 	logger.Infow("getting id from path")
 	pathSlice := strings.Split(r.URL.Path, "/")
@@ -42,7 +43,7 @@ func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Infow("parsing uuid from path")
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		logger.Errorw("failed to parse", "err", err)
+		logger.Errorw("failed to parse uuid", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

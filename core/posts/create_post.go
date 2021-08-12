@@ -17,8 +17,8 @@ type CreatePostRequestBody struct {
 
 // Represent output data of CreatePostHandler
 type CreatePostResponseBody struct {
-	Post    *Post  `json:"post"`
-	Message string `json:"message"`
+	Post    *Post  `json:"post" xml:"post"`
+	Message string `json:"message" xml:"message"`
 }
 
 // Creates post instance and stores it in database
@@ -37,10 +37,10 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger = logger.With("body", body)
 
 	// parse uuid id
-	logger.Infow("parsing uuid from path")
+	logger.Infow("parsing uuid from body")
 	uid, err := uuid.Parse(string(body.UserID))
 	if err != nil {
-		logger.Errorw("failed to parse", "err", err)
+		logger.Errorw("failed to parse uuid from body", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

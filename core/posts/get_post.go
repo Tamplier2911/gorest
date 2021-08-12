@@ -22,6 +22,7 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.ctx.Logger.Named("GetPostHandler")
 
 	// TODO: consider abstracting this to a middleware
+
 	// get id from path
 	logger.Infow("getting id from path")
 	pathSlice := strings.Split(r.URL.Path, "/")
@@ -38,7 +39,7 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Infow("parsing uuid from path")
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		logger.Errorw("failed to parse", "err", err)
+		logger.Errorw("failed to parse uuid", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

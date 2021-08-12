@@ -1,4 +1,4 @@
-package posts
+package comments
 
 import (
 	"encoding/json"
@@ -8,16 +8,18 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-// Represent output data of DeletePostHandler
-type DeletePostHandlerResponseBody struct {
-	Message string `json:"message" xml:"message"`
+// Represent output data of GetCommentHandler
+type GetCommentHandlerResponseBody struct {
+	Comment *Comment `json:"comment" xml:"comment"`
+	Message string   `json:"message" xml:"message"`
 }
 
-// Deletes post by provided id from database
-func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("DeletePostsHandler")
+// Gets comment by provided id from database, returns comment
+func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
+	logger := c.ctx.Logger.Named("GetCommentHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -43,22 +45,28 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("uid", uid)
 
-	// delete post from database
-	logger.Infow("deleting post from database")
-	result := p.ctx.MySQL.Model(&Post{}).Delete(&Post{ID: uid})
-	if result.Error != nil || result.RowsAffected == 0 {
-		if result.Error == nil {
-			result.Error = errors.New("record not found")
+	// retreive comment from database
+	logger.Infow("getting comment from database")
+	var comment Comment
+	err = c.ctx.MySQL.Model(&Comment{}).Where(&Comment{ID: uid}).First(&comment).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logger.Errorw("failed to find comment with provided id in database", "err", err)
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
 		}
-		logger.Errorw("failed to delete post with provided id from database", "err", err)
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+
+		logger.Errorw("failed to get comment from database", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	logger = logger.With("comment", comment)
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := DeletePostHandlerResponseBody{
-		Message: "successfully deleted post from database",
+	res := GetCommentHandlerResponseBody{
+		Comment: &comment,
+		Message: "successfully retrieved comment",
 	}
 	logger = logger.With("res", res)
 
@@ -88,6 +96,6 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.WriteHeader(http.StatusOK)
 
-	logger.Infow("successfully deleted post from database")
+	logger.Infow("successfully retrieved comment by id from database")
 	w.Write(b)
 }

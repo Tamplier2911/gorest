@@ -1,4 +1,4 @@
-package posts
+package comments
 
 import (
 	"encoding/json"
@@ -10,14 +10,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// Represent output data of DeletePostHandler
-type DeletePostHandlerResponseBody struct {
+// Represent output data of DeleteCommentHandler
+type DeleteCommentHandlerResponseBody struct {
 	Message string `json:"message" xml:"message"`
 }
 
-// Deletes post by provided id from database
-func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("DeletePostsHandler")
+// Deletes comment by provided id from database
+func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
+	logger := c.ctx.Logger.Named("DeleteCommentHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -43,22 +43,22 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("uid", uid)
 
-	// delete post from database
-	logger.Infow("deleting post from database")
-	result := p.ctx.MySQL.Model(&Post{}).Delete(&Post{ID: uid})
+	// delete comment from database
+	logger.Infow("deleting comment from database")
+	result := c.ctx.MySQL.Model(&Comment{}).Delete(&Comment{ID: uid})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
 		}
-		logger.Errorw("failed to delete post with provided id from database", "err", err)
+		logger.Errorw("failed to delete comment with provided id from database", "err", err)
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := DeletePostHandlerResponseBody{
-		Message: "successfully deleted post from database",
+	res := DeleteCommentHandlerResponseBody{
+		Message: "successfully deleted comment from database",
 	}
 	logger = logger.With("res", res)
 
@@ -88,6 +88,6 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.WriteHeader(http.StatusOK)
 
-	logger.Infow("successfully deleted post from database")
+	logger.Infow("successfully deleted comment from database")
 	w.Write(b)
 }

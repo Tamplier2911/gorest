@@ -1,4 +1,4 @@
-package posts
+package comments
 
 import (
 	"encoding/json"
@@ -10,14 +10,20 @@ import (
 	"github.com/google/uuid"
 )
 
-// Represent output data of DeletePostHandler
-type DeletePostHandlerResponseBody struct {
+// Represent input data of UpdateCommentHandler
+type UpdateCommentRequestBody struct {
+	Name string `json:"name" form:"name" url:"name" binding:"required"`
+	Body string `json:"body" form:"body" url:"body" binding:"required"`
+}
+
+// Represent output data of UpdateCommentHandler
+type UpdateCommentResponseBody struct {
 	Message string `json:"message" xml:"message"`
 }
 
-// Deletes post by provided id from database
-func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("DeletePostsHandler")
+// Updates post instance in database
+func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) {
+	logger := c.ctx.Logger.Named("UpdatePostHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -33,7 +39,7 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("id", id)
 
-	// parse uuid
+	// parse uuid id
 	logger.Infow("parsing uuid from path")
 	uid, err := uuid.Parse(id)
 	if err != nil {
@@ -43,22 +49,36 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("uid", uid)
 
-	// delete post from database
-	logger.Infow("deleting post from database")
-	result := p.ctx.MySQL.Model(&Post{}).Delete(&Post{ID: uid})
+	// parse body data
+	logger.Infow("parsing request body")
+	var body CreateCommentRequestBody
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logger.Errorw("failed to parse request body", "err", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	logger = logger.With("req", body)
+
+	// update post in database
+	logger.Infow("updating post in database")
+	result := c.ctx.MySQL.
+		Model(&Comment{}).
+		Where(&Comment{ID: uid}).
+		Updates(&Comment{Name: body.Name, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
 		}
-		logger.Errorw("failed to delete post with provided id from database", "err", err)
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		logger.Errorw("failed to update post in database", "err", err)
+		http.Error(w, result.Error.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := DeletePostHandlerResponseBody{
-		Message: "successfully deleted post from database",
+	res := UpdateCommentResponseBody{
+		Message: "successfully updated post",
 	}
 	logger = logger.With("res", res)
 
@@ -88,6 +108,6 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.WriteHeader(http.StatusOK)
 
-	logger.Infow("successfully deleted post from database")
+	logger.Debugw("successfully updated post in database")
 	w.Write(b)
 }
