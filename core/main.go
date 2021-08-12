@@ -75,9 +75,9 @@ func (m *Monolith) Setup() {
 		case http.MethodGet:
 			comments.GetCommentHandler(w, r)
 		case http.MethodPut:
-			// comments.UpdatePostHandler(w, r)
+			comments.UpdateCommentHandler(w, r)
 		case http.MethodDelete:
-			// comments.DeletePostHandler(w, r)
+			comments.DeleteCommentHandler(w, r)
 		}
 		w.WriteHeader(http.StatusNotFound)
 	})

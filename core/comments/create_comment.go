@@ -104,6 +104,6 @@ func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) 
 	// write headers
 	w.WriteHeader(http.StatusCreated)
 
-	logger.Debugw("successfully created post record in database")
+	logger.Debugw("successfully created comment record in database")
 	w.Write(b)
 }

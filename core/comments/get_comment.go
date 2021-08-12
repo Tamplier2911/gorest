@@ -17,7 +17,7 @@ type GetCommentHandlerResponseBody struct {
 	Message string   `json:"message" xml:"message"`
 }
 
-// Gets post by provided id from database, returns posts
+// Gets comment by provided id from database, returns comment
 func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	logger := c.ctx.Logger.Named("GetCommentHandler")
 
@@ -66,7 +66,7 @@ func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Infow("assembling response body")
 	res := GetCommentHandlerResponseBody{
 		Comment: &comment,
-		Message: "successfully retrieved post",
+		Message: "successfully retrieved comment",
 	}
 	logger = logger.With("res", res)
 
@@ -96,6 +96,6 @@ func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.WriteHeader(http.StatusOK)
 
-	logger.Infow("successfully retrieved post by id from database")
+	logger.Infow("successfully retrieved comment by id from database")
 	w.Write(b)
 }
