@@ -23,7 +23,7 @@ func (m *Monolith) Setup() {
 	// automigrate models
 	m.Logger.Info("automigrating models")
 	// err := m.MySQL.AutoMigrate(&models.{})
-	err := m.MySQL.AutoMigrate(&posts.Post{}, &comments.Comment{})
+	err := m.MySQL.AutoMigrate(&posts.Post{}, &comments.Comment{}, &comments.User{})
 	if err != nil {
 		m.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
