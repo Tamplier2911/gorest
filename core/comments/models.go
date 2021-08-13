@@ -3,7 +3,7 @@ package comments
 import (
 	"time"
 
-	"github.com/Tamplier2911/gorest/core/posts"
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -48,8 +48,8 @@ type Comment struct {
 	UpdatedAt time.Time      `json:"-" xml:"-" gorm:"column:updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" xml:"-" gorm:"column:deleted_at;index"`
 
-	Post posts.Post `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PostID"`
-	User User       `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
+	Post models.Post `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PostID"`
+	User User        `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
 }
 
 func (c *Comment) BeforeCreate(tx *gorm.DB) (err error) {

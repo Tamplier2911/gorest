@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"gorm.io/gorm/clause"
 )
 
 // Represent output data of GetPostsHandler
 type GetPostsHandlerResponseBody struct {
-	Posts   []Post `json:"posts" xml:"posts"`
-	Total   int64  `json:"total" xml:"total"`
-	Message string `json:"message" xml:"message"`
+	Posts   []models.Post `json:"posts" xml:"posts"`
+	Total   int64         `json:"total" xml:"total"`
+	Message string        `json:"message" xml:"message"`
 }
 
 // Get all posts from database, takes limit and offset query parameters, returns posts
@@ -21,7 +22,7 @@ func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.ctx.Logger.Named("GetPostsHandler")
 
 	// define db statement
-	stmt := p.ctx.MySQL.Model(&Post{})
+	stmt := p.ctx.MySQL.Model(&models.Post{})
 
 	// TODO: consider refactoring that
 
@@ -56,7 +57,7 @@ func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive posts from database
 	logger.Infow("getting posts from database")
 	var total int64
-	var posts []Post
+	var posts []models.Post
 	err := stmt.
 		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
@@ -83,15 +84,15 @@ func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 

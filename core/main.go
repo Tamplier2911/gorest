@@ -5,6 +5,7 @@ import (
 
 	"github.com/Tamplier2911/gorest/core/comments"
 	"github.com/Tamplier2911/gorest/core/posts"
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
 )
 
@@ -22,8 +23,7 @@ func (m *Monolith) Setup() {
 
 	// automigrate models
 	m.Logger.Info("automigrating models")
-	// err := m.MySQL.AutoMigrate(&models.{})
-	err := m.MySQL.AutoMigrate(&posts.Post{}, &comments.Comment{}, &comments.User{})
+	err := m.MySQL.AutoMigrate(&models.Post{}, &models.Comment{}, &models.User{})
 	if err != nil {
 		m.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
@@ -31,29 +31,6 @@ func (m *Monolith) Setup() {
 	// posts
 	posts := posts.Posts{}
 	posts.Setup(&m.Service)
-
-	// configure router
-	m.Router.HandleFunc("/v1/posts", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			posts.GetPostsHandler(w, r)
-		case http.MethodPost:
-			posts.CreatePostHandler(w, r)
-		}
-		w.WriteHeader(http.StatusNotFound)
-	})
-
-	m.Router.HandleFunc("/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			posts.GetPostHandler(w, r)
-		case http.MethodPut:
-			posts.UpdatePostHandler(w, r)
-		case http.MethodDelete:
-			posts.DeletePostHandler(w, r)
-		}
-		w.WriteHeader(http.StatusNotFound)
-	})
 
 	// comments
 	comments := comments.Comments{}
