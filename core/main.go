@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/Tamplier2911/gorest/core/comments"
 	"github.com/Tamplier2911/gorest/core/posts"
 	"github.com/Tamplier2911/gorest/pkg/models"
@@ -35,29 +33,6 @@ func (m *Monolith) Setup() {
 	// comments
 	comments := comments.Comments{}
 	comments.Setup(&m.Service)
-
-	// configure router
-	m.Router.HandleFunc("/v1/comments", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			comments.GetCommentsHandler(w, r)
-		case http.MethodPost:
-			comments.CreateCommentHandler(w, r)
-		}
-		w.WriteHeader(http.StatusNotFound)
-	})
-
-	m.Router.HandleFunc("/v1/comments/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			comments.GetCommentHandler(w, r)
-		case http.MethodPut:
-			comments.UpdateCommentHandler(w, r)
-		case http.MethodDelete:
-			comments.DeleteCommentHandler(w, r)
-		}
-		w.WriteHeader(http.StatusNotFound)
-	})
 
 }
 
