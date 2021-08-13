@@ -7,14 +7,15 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Represent output data of GetCommentHandler
 type GetCommentHandlerResponseBody struct {
-	Comment *Comment `json:"comment" xml:"comment"`
-	Message string   `json:"message" xml:"message"`
+	Comment *models.Comment `json:"comment" xml:"comment"`
+	Message string          `json:"message" xml:"message"`
 }
 
 // Gets comment by provided id from database, returns comment
@@ -47,8 +48,8 @@ func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	// retreive comment from database
 	logger.Infow("getting comment from database")
-	var comment Comment
-	err = c.ctx.MySQL.Model(&Comment{}).Where(&Comment{ID: uid}).First(&comment).Error
+	var comment models.Comment
+	err = c.ctx.MySQL.Model(&models.Comment{}).Where(&models.Comment{Base: models.Base{ID: uid}}).First(&comment).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find comment with provided id in database", "err", err)
@@ -75,15 +76,15 @@ func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 

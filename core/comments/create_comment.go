@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 )
 
@@ -18,8 +19,8 @@ type CreateCommentRequestBody struct {
 
 // Represent output data of CreateCommentHandler
 type CreateCommentResponseBody struct {
-	Comment *Comment `json:"comment" xml:"comment"`
-	Message string   `json:"message" xml:"message"`
+	Comment *models.Comment `json:"comment" xml:"comment"`
+	Message string          `json:"message" xml:"message"`
 }
 
 // Creates comment instance and stores it in database
@@ -57,13 +58,13 @@ func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	// save instance of comment in database
 	logger.Infow("saving comment to database")
-	comment := Comment{
+	comment := models.Comment{
 		UserID: userUuid,
 		PostID: postUuid,
 		Name:   body.Name,
 		Body:   body.Body,
 	}
-	err = c.ctx.MySQL.Model(&Comment{}).Create(&comment).Error
+	err = c.ctx.MySQL.Model(&models.Comment{}).Create(&comment).Error
 	if err != nil {
 		logger.Errorw("failed to save comment in database", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -83,15 +84,15 @@ func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 

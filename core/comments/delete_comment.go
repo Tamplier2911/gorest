@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 )
 
@@ -45,7 +46,7 @@ func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	// delete comment from database
 	logger.Infow("deleting comment from database")
-	result := c.ctx.MySQL.Model(&Comment{}).Delete(&Comment{ID: uid})
+	result := c.ctx.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: uid}})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
@@ -67,15 +68,15 @@ func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 

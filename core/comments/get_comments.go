@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"gorm.io/gorm/clause"
 )
 
 // Represent output data of GetCommentsHandler
 type GetCommentsHandlerResponseBody struct {
-	Comments []Comment `json:"comments" xml:"comments"`
-	Total    int64     `json:"total" xml:"total"`
-	Message  string    `json:"message" xml:"message"`
+	Comments []models.Comment `json:"comments" xml:"comments"`
+	Total    int64            `json:"total" xml:"total"`
+	Message  string           `json:"message" xml:"message"`
 }
 
 // Get all comments from database, takes limit and offset query parameters, returns comments
@@ -21,7 +22,7 @@ func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	logger := c.ctx.Logger.Named("GetCommentsHandler")
 
 	// define db statement
-	stmt := c.ctx.MySQL.Model(&Comment{})
+	stmt := c.ctx.MySQL.Model(&models.Comment{})
 
 	// TODO: consider refactoring that
 
@@ -56,7 +57,7 @@ func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive comments from database
 	logger.Infow("getting comments from database")
 	var total int64
-	var comments []Comment
+	var comments []models.Comment
 	err := stmt.
 		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
@@ -83,15 +84,15 @@ func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 

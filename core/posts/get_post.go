@@ -7,14 +7,15 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Represent output data of GetPostHandler
 type GetPostHandlerResponseBody struct {
-	Post    *Post  `json:"post" xml:"posts"`
-	Message string `json:"message" xml:"message"`
+	Post    *models.Post `json:"post" xml:"posts"`
+	Message string       `json:"message" xml:"message"`
 }
 
 // Gets post by provided id from database, returns posts
@@ -47,8 +48,8 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// retreive post from database
 	logger.Infow("getting post from database")
-	var post Post
-	err = p.ctx.MySQL.Model(&Post{}).Where(&Post{ID: uid}).First(&post).Error
+	var post models.Post
+	err = p.ctx.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: uid}}).First(&post).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)
@@ -75,15 +76,15 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 
