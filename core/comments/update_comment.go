@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 )
 
@@ -63,9 +64,9 @@ func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) 
 	// update post in database
 	logger.Infow("updating post in database")
 	result := c.ctx.MySQL.
-		Model(&Comment{}).
-		Where(&Comment{ID: uid}).
-		Updates(&Comment{Name: body.Name, Body: body.Body})
+		Model(&models.Comment{}).
+		Where(&models.Comment{Base: models.Base{ID: uid}}).
+		Updates(&models.Comment{Name: body.Name, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
@@ -87,15 +88,15 @@ func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 

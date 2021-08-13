@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 )
 
@@ -17,8 +18,8 @@ type CreatePostRequestBody struct {
 
 // Represent output data of CreatePostHandler
 type CreatePostResponseBody struct {
-	Post    *Post  `json:"post" xml:"post"`
-	Message string `json:"message" xml:"message"`
+	Post    *models.Post `json:"post" xml:"post"`
+	Message string       `json:"message" xml:"message"`
 }
 
 // Creates post instance and stores it in database
@@ -48,12 +49,12 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// save instance of post in database
 	logger.Infow("saving post to database")
-	post := Post{
+	post := models.Post{
 		UserID: uid,
 		Title:  body.Title,
 		Body:   body.Body,
 	}
-	err = p.ctx.MySQL.Model(&Post{}).Create(&post).Error
+	err = p.ctx.MySQL.Model(&models.Post{}).Create(&post).Error
 	if err != nil {
 		logger.Errorw("failed to save post in database", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -73,15 +74,15 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var b []byte
 	switch accept {
-	case string(MimeTypesXML):
+	case string(models.MimeTypesXML):
 		// response with xml
 		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(MimeTypesXML))
+		w.Header().Set("Content-Type", string(models.MimeTypesXML))
 		b, err = xml.Marshal(res)
 	default:
 		// default response with json
 		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(MimeTypesJSON))
+		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
 		b, err = json.Marshal(res)
 	}
 
