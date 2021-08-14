@@ -70,7 +70,7 @@ const (
 // UserRole represent user roles.
 type UserRole string
 
-// Mime types.
+// User roles.
 const (
 	UserRoleAdmin     UserRole = "admin"
 	UserRoleModerator UserRole = "moderator"
