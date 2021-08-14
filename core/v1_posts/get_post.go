@@ -1,4 +1,4 @@
-package posts
+package posts_v1
 
 import (
 	"encoding/json"
