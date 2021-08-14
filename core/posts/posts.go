@@ -21,7 +21,7 @@ func (p *Posts) Setup(ctx *service.Service) {
 	// postsRouter.Use()
 
 	// plural
-	// postsRouter.GET("/", c)
+	postsRouter.GET("", p.GetPostsHandler)
 	postsRouter.POST("", p.CreatePostHandler)
 
 	// singular
