@@ -3,10 +3,13 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/Tamplier2911/gorest/pkg/config"
 	"github.com/Tamplier2911/gorest/pkg/logger"
+	"github.com/labstack/echo"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -15,15 +18,19 @@ import (
 type Service struct {
 	Config *config.Config
 	Logger *zap.SugaredLogger
+
+	// default server and multiplexer
 	Server *http.Server
 	Router *http.ServeMux
 
 	// optional
 	MySQL *gorm.DB
+	Echo  *echo.Echo
 }
 
 type InitializeOptions struct {
 	MySQL bool
+	Echo  bool
 }
 
 func (s *Service) Initialize(options *InitializeOptions) {
@@ -37,12 +44,18 @@ func (s *Service) Initialize(options *InitializeOptions) {
 		New(s.Config.LogLevel, s.Config.Production).
 		Named("Service")
 
-	// create router
+	// get port
+	port := fmt.Sprintf(":%s", s.Config.Port)
+	if s.Config.Production {
+		port = fmt.Sprintf(":%s", os.Getenv("PORT"))
+	}
+
+	// create default router
 	s.Router = http.NewServeMux()
 
-	// create server
+	// create default server
 	s.Server = &http.Server{
-		Addr:           fmt.Sprintf(":%s", s.Config.Port),
+		Addr:           port,
 		Handler:        s.Router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -59,12 +72,53 @@ func (s *Service) Initialize(options *InitializeOptions) {
 		s.Logger.Infow("successfully connected to mysql server")
 	}
 
+	// create echo instance
+	if options.Echo {
+		s.Logger.Infow("wiring echo framework server")
+		s.Echo = echo.New()
+	}
+
 }
 
 func (s *Service) Start() {
-	s.Logger.Infow(fmt.Sprintf("starting http server on port %s", s.Server.Addr))
-	err := s.Server.ListenAndServe()
-	if err != nil {
-		s.Logger.Fatalw("failed to start server", "err", err)
+	var wg sync.WaitGroup
+
+	// create error channels
+	defaultServerError := make(chan error, 1)
+	echoServerError := make(chan error, 1)
+
+	// start default http server
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		s.Logger.Infow(fmt.Sprintf("starting default http server on port: %s", s.Server.Addr))
+		defaultServerError <- s.Server.ListenAndServe()
+		// cleanup
+	}(&wg)
+
+	// start echo server
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		// TODO: add dynamic port
+		port := "8000"
+		s.Logger.Infow(fmt.Sprintf("starting echo http server on port: %s", port))
+		echoServerError <- s.Echo.Start(fmt.Sprintf(":%s", port))
+		// cleanup
+	}(&wg)
+
+	select {
+	case err := <-defaultServerError:
+		// handle error and close echo server
+		s.Echo.Close()
+		s.Logger.Fatalw("default server error:", "err", err)
+	case err := <-echoServerError:
+		// handle error and close default server
+		s.Server.Close()
+		s.Logger.Fatalw("echo server error:", "err", err)
 	}
+
+	// cleanup
+
+	wg.Wait()
 }
