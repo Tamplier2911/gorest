@@ -16,7 +16,8 @@ func (m *Monolith) Setup() {
 		MySQL: true,
 	})
 
-	// set port - default 8080 || export GOREST_PORT='3000'
+	// default port '8080' || export GOREST_PORT='8080'
+	// or manually
 	m.Server.Addr = ":3000"
 
 	// automigrate models
@@ -26,11 +27,11 @@ func (m *Monolith) Setup() {
 		m.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
-	// posts
+	// v1 posts
 	posts := posts.Posts{}
 	posts.Setup(&m.Service)
 
-	// comments
+	// v1 comments
 	comments := comments.Comments{}
 	comments.Setup(&m.Service)
 
