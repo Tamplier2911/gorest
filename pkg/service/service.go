@@ -81,44 +81,55 @@ func (s *Service) Initialize(options *InitializeOptions) {
 }
 
 func (s *Service) Start() {
-	var wg sync.WaitGroup
 
-	// create error channels
-	defaultServerError := make(chan error, 1)
-	echoServerError := make(chan error, 1)
+	// if echo initialized run both servers in parallel
+	if s.Echo != nil {
+		var wg sync.WaitGroup
 
-	// start default http server
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		s.Logger.Infow(fmt.Sprintf("starting default http server on port: %s", s.Server.Addr))
-		defaultServerError <- s.Server.ListenAndServe()
+		// create error channels
+		defaultServerError := make(chan error, 1)
+		echoServerError := make(chan error, 1)
+
+		// start default http server
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+			s.Logger.Infow(fmt.Sprintf("starting default http server - base url: %s port: %s", s.Config.BaseURL, s.Server.Addr))
+			defaultServerError <- s.Server.ListenAndServe()
+			// cleanup
+		}(&wg)
+
+		// start echo server
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+			// TODO: add dynamic port
+			port := "8000"
+			s.Logger.Infow(fmt.Sprintf("starting echo http server - base url: %s port: %s", s.Config.BaseURL, port))
+			echoServerError <- s.Echo.Start(fmt.Sprintf(":%s", port))
+			// cleanup
+		}(&wg)
+
+		select {
+		case err := <-defaultServerError:
+			// handle error and close echo server
+			s.Echo.Close()
+			s.Logger.Fatalw("default server error:", "err", err)
+		case err := <-echoServerError:
+			// handle error and close default server
+			s.Server.Close()
+			s.Logger.Fatalw("echo server error:", "err", err)
+		}
+
 		// cleanup
-	}(&wg)
 
-	// start echo server
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		// TODO: add dynamic port
-		port := "8000"
-		s.Logger.Infow(fmt.Sprintf("starting echo http server on port: %s", port))
-		echoServerError <- s.Echo.Start(fmt.Sprintf(":%s", port))
-		// cleanup
-	}(&wg)
-
-	select {
-	case err := <-defaultServerError:
-		// handle error and close echo server
-		s.Echo.Close()
-		s.Logger.Fatalw("default server error:", "err", err)
-	case err := <-echoServerError:
-		// handle error and close default server
-		s.Server.Close()
-		s.Logger.Fatalw("echo server error:", "err", err)
+		wg.Wait()
+	} else {
+		// else just run default http server
+		s.Logger.Infow(fmt.Sprintf("starting default http server - base url: %s port: %s", s.Config.BaseURL, s.Server.Addr))
+		err := s.Server.ListenAndServe()
+		if err != nil {
+			s.Logger.Fatalw("failed to start server", "err", err)
+		}
 	}
-
-	// cleanup
-
-	wg.Wait()
 }

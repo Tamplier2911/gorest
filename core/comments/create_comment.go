@@ -1,20 +1,20 @@
 package comments
 
 import (
-	"encoding/json"
-	"encoding/xml"
 	"net/http"
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
+	"github.com/labstack/echo"
 )
 
 // Represent input data of CreateCommentHandler
 type CreateCommentRequestBody struct {
-	PostID string `json:"postId" form:"postId" url:"postId" binding:"required"`
-	UserID string `json:"userId" form:"userId" url:"userId" binding:"required"`
-	Name   string `json:"name" form:"name" url:"name" binding:"required"`
-	Body   string `json:"body" form:"body" url:"body" binding:"required"`
+	PostID string `json:"postId" form:"postId" binding:"required"`
+	// TODO: consider getting user id from auth middleware in future
+	UserID string `json:"userId" form:"userId" binding:"required"`
+	Name   string `json:"name" form:"name" binding:"required"`
+	Body   string `json:"body" form:"body" binding:"required"`
 }
 
 // Represent output data of CreateCommentHandler
@@ -24,35 +24,39 @@ type CreateCommentResponseBody struct {
 }
 
 // Creates comment instance and stores it in database
-func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("CreateCommentHandler")
+func (cm *Comments) CreateCommentHandler(c echo.Context) error {
+	logger := cm.ctx.Logger.Named("CreateCommentHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
 	var body CreateCommentRequestBody
-	err := json.NewDecoder(r.Body).Decode(&body)
+	err := c.Bind(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentResponseBody{
+			Message: "failed to parse request body",
+		})
 	}
 	logger = logger.With("body", body)
 
-	// parse uuid id
+	// parse uuids id
 	logger.Infow("parsing uuids from body")
-	postUuid, err := uuid.Parse(string(body.PostID))
+	postUuid, err := uuid.Parse(body.PostID)
 	if err != nil {
 		logger.Errorw("failed to parse uuids from body", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentResponseBody{
+			Message: "failed to parse uuids from body",
+		})
 	}
 	logger = logger.With("postUuid", postUuid)
 
-	userUuid, err := uuid.Parse(string(body.UserID))
+	// TODO: consider getting user id from auth middleware in future
+	userUuid, err := uuid.Parse(body.UserID)
 	if err != nil {
 		logger.Errorw("failed to parse uuids from body", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentResponseBody{
+			Message: "failed to parse uuids from body",
+		})
 	}
 	logger = logger.With("userUuid", userUuid)
 
@@ -64,11 +68,12 @@ func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) 
 		Name:   body.Name,
 		Body:   body.Body,
 	}
-	err = c.ctx.MySQL.Model(&models.Comment{}).Create(&comment).Error
+	err = cm.ctx.MySQL.Model(&models.Comment{}).Create(&comment).Error
 	if err != nil {
 		logger.Errorw("failed to save comment in database", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusInternalServerError, CreateCommentResponseBody{
+			Message: "failed to save comment in database",
+		})
 	}
 
 	// assemble response body
@@ -79,32 +84,6 @@ func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	logger = logger.With("res", res)
 
-	// get clients accept header
-	accept := r.Header.Get("Accept")
-
-	var b []byte
-	switch accept {
-	case string(models.MimeTypesXML):
-		// response with xml
-		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(models.MimeTypesXML))
-		b, err = xml.Marshal(res)
-	default:
-		// default response with json
-		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
-		b, err = json.Marshal(res)
-	}
-
-	if err != nil {
-		logger.Errorw("failed to marshal response body", "err", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// write headers
-	w.WriteHeader(http.StatusCreated)
-
 	logger.Debugw("successfully created comment record in database")
-	w.Write(b)
+	return cm.ResponseWriter(c, http.StatusCreated, res)
 }

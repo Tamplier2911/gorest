@@ -1,20 +1,18 @@
 package comments
 
 import (
-	"encoding/json"
-	"encoding/xml"
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
+	"github.com/labstack/echo"
 )
 
 // Represent input data of UpdateCommentHandler
 type UpdateCommentRequestBody struct {
-	Name string `json:"name" form:"name" url:"name" binding:"required"`
-	Body string `json:"body" form:"body" url:"body" binding:"required"`
+	Name string `json:"name" form:"name" binding:"required"`
+	Body string `json:"body" form:"body" binding:"required"`
 }
 
 // Represent output data of UpdateCommentHandler
@@ -23,57 +21,54 @@ type UpdateCommentResponseBody struct {
 }
 
 // Updates post instance in database
-func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("UpdatePostHandler")
+func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
+	logger := cm.ctx.Logger.Named("UpdateCommentHandler")
 
-	// TODO: consider abstracting this to a middleware
-
-	// get id from path
-	logger.Infow("getting id from path")
-	pathSlice := strings.Split(r.URL.Path, "/")
-	id := pathSlice[len(pathSlice)-1]
-	if id == "" {
-		err := errors.New("failed to get id from path")
-		logger.Errorw("failed to get id from path", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	// get id from path param
+	logger.Infow("getting id from path params")
+	id := c.Param("id")
 	logger = logger.With("id", id)
 
 	// parse uuid id
 	logger.Infow("parsing uuid from path")
-	uid, err := uuid.Parse(id)
+	commentId, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentResponseBody{
+			Message: "failed to parse uuid",
+		})
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("commentId", commentId)
 
 	// parse body data
 	logger.Infow("parsing request body")
 	var body CreateCommentRequestBody
-	err = json.NewDecoder(r.Body).Decode(&body)
+	err = c.Bind(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentResponseBody{
+			Message: "failed to parse request body",
+		})
 	}
-	logger = logger.With("req", body)
+	logger = logger.With("body", body)
 
 	// update post in database
 	logger.Infow("updating post in database")
-	result := c.ctx.MySQL.
+	result := cm.ctx.MySQL.
 		Model(&models.Comment{}).
-		Where(&models.Comment{Base: models.Base{ID: uid}}).
+		Where(&models.Comment{Base: models.Base{ID: commentId}}).
 		Updates(&models.Comment{Name: body.Name, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
+			return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentResponseBody{
+				Message: "failed to find comment with provided id in database",
+			})
 		}
 		logger.Errorw("failed to update post in database", "err", err)
-		http.Error(w, result.Error.Error(), http.StatusBadRequest)
-		return
+		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentResponseBody{
+			Message: "failed to update post in database",
+		})
 	}
 
 	// assemble response body
@@ -83,32 +78,6 @@ func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	logger = logger.With("res", res)
 
-	// get clients accept header
-	accept := r.Header.Get("Accept")
-
-	var b []byte
-	switch accept {
-	case string(models.MimeTypesXML):
-		// response with xml
-		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(models.MimeTypesXML))
-		b, err = xml.Marshal(res)
-	default:
-		// default response with json
-		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
-		b, err = json.Marshal(res)
-	}
-
-	if err != nil {
-		logger.Errorw("failed to marshal response body", "err", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// write headers
-	w.WriteHeader(http.StatusOK)
-
 	logger.Debugw("successfully updated post in database")
-	w.Write(b)
+	return cm.ResponseWriter(c, http.StatusOK, res)
 }
