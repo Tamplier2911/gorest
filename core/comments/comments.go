@@ -19,7 +19,7 @@ func (cm *Comments) Setup(ctx *service.Service) {
 	// auth middleware
 	// CommentsRouter.Use()
 
-	// CommentsRouter.GET("", cm.GetCommentsHandler)
+	CommentsRouter.GET("", cm.GetCommentsHandler)
 	CommentsRouter.POST("", cm.CreateCommentHandler)
 	// CommentsRouter.GET("/:id", cm.GetCommentHandler)
 	// CommentsRouter.PUT("/:id", cm.UpdateCommentHandler)

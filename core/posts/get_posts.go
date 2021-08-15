@@ -10,8 +10,8 @@ import (
 
 // Represent input query of GetPostHandler
 type GetPostsHandlerRequestQuery struct {
-	Limit  int `query:"limit" default:"10"`
-	Offset int `query:"offset" default:"0"`
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
 }
 
 // Represent output data of GetPostsHandler
@@ -36,6 +36,12 @@ func (p *Posts) GetPostsHandler(c echo.Context) error {
 	}
 	logger = logger.With("query", query)
 
+	// set default limit to 10
+	limit := 10
+	if query.Limit != 0 {
+		limit = query.Limit
+	}
+
 	// retreive posts from database
 	logger.Infow("getting posts from database")
 	var total int64
@@ -43,7 +49,7 @@ func (p *Posts) GetPostsHandler(c echo.Context) error {
 	err = p.ctx.MySQL.Model(&models.Post{}).
 		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
-		Limit(query.Limit).
+		Limit(limit).
 		Offset(query.Offset).
 		Find(&posts).
 		Error
