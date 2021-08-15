@@ -5,15 +5,29 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent output data of DeleteCommentHandler
 type DeleteCommentHandlerResponseBody struct {
 	Message string `json:"message" xml:"message"`
-}
+} // @name DeleteCommentResponse
 
-// Deletes comment by provided id from database
+// DeleteCommentHandler godoc
+//
+// @id				DeleteComment
+// @Summary 		Deletes comment record.
+// @Description 	Deletes comment record from database using provided id.
+//
+// @Produce json
+// @Produce xml
+//
+// @Success 200 	{object} DeleteCommentHandlerResponseBody
+// @Failure 400,404 {object} DeleteCommentHandlerResponseBody
+// @Failure 500 	{object} DeleteCommentHandlerResponseBody
+// @Failure default {object} DeleteCommentHandlerResponseBody
+//
+// @Router /comments/{id} [DELETE]
 func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 	logger := cm.ctx.Logger.Named("DeleteCommentHandler")
 

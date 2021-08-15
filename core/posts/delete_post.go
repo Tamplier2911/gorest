@@ -5,15 +5,29 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent output data of DeletePostHandler
 type DeletePostHandlerResponseBody struct {
 	Message string `json:"message" xml:"message"`
-}
+} // @name DeletePostResponse
 
-// Deletes post by provided id from database
+// DeletePostHandler godoc
+//
+// @id				DeletePost
+// @Summary 		Deletes post record.
+// @Description 	Deletes post record from database using provided id.
+//
+// @Produce json
+// @Produce xml
+//
+// @Success 200 	{object} DeletePostHandlerResponseBody
+// @Failure 400,404 {object} DeletePostHandlerResponseBody
+// @Failure 500 	{object} DeletePostHandlerResponseBody
+// @Failure default {object} DeletePostHandlerResponseBody
+//
+// @Router /posts/{id} [DELETE]
 func (p *Posts) DeletePostHandler(c echo.Context) error {
 	logger := p.ctx.Logger.Named("DeletePostsHandler")
 

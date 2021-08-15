@@ -3,7 +3,7 @@ package posts
 import (
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type Posts struct {
@@ -14,17 +14,17 @@ func (p *Posts) Setup(ctx *service.Service) {
 	p.ctx = ctx
 
 	// configure router
-	PostsRouter := p.ctx.Echo.Group("/api/v2/posts")
+	// PostsRouter := p.ctx.Echo.Group("/api/v2/posts")
 
 	// auth middleware
 	// TODO: only owners can remove and update posts
 	// PostsRouter.Use()
 
-	PostsRouter.GET("", p.GetPostsHandler)
-	PostsRouter.POST("", p.CreatePostHandler)
-	PostsRouter.GET("/:id", p.GetPostHandler)
-	PostsRouter.PUT("/:id", p.UpdatePostHandler)
-	PostsRouter.DELETE("/:id", p.DeletePostHandler)
+	// PostsRouter.GET("", p.GetPostsHandler)
+	// PostsRouter.POST("", p.CreatePostHandler)
+	// PostsRouter.GET("/:id", p.GetPostHandler)
+	// PostsRouter.PUT("/:id", p.UpdatePostHandler)
+	// PostsRouter.DELETE("/:id", p.DeletePostHandler)
 }
 
 // Writes response based on accept header

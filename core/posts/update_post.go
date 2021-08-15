@@ -5,21 +5,39 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent input data of UpdatePostHandler
 type UpdatePostRequestBody struct {
 	Title string `json:"title" form:"title" binding:"required"`
 	Body  string `json:"body" form:"body" binding:"required"`
-}
+} // @name UpdatePostRequest
 
 // Represent output data of UpdatePostHandler
 type UpdatePostResponseBody struct {
 	Message string `json:"message" xml:"message"`
-}
+} // @name UpdatePostResponse
 
-// Updates post instance in database
+// UpdatePostHandler godoc
+//
+// @id				UpdatePost
+// @Summary 		Updates post record.
+// @Description 	Updates post record in database using provided data.
+//
+// @Accept json
+//
+// @Produce json
+// @Produce xml
+//
+// @Param fields body UpdatePostRequestBody true "data"
+//
+// @Success 200 	{object} UpdatePostResponseBody
+// @Failure 400,404 {object} UpdatePostResponseBody
+// @Failure 500 	{object} UpdatePostResponseBody
+// @Failure default {object} UpdatePostResponseBody
+//
+// @Router /posts/{id} [PUT]
 func (p *Posts) UpdatePostHandler(c echo.Context) error {
 	logger := p.ctx.Logger.Named("UpdatePostHandler")
 

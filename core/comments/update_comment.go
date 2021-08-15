@@ -6,21 +6,39 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent input data of UpdateCommentHandler
 type UpdateCommentRequestBody struct {
 	Name string `json:"name" form:"name" binding:"required"`
 	Body string `json:"body" form:"body" binding:"required"`
-}
+} // @name UpdateCommentRequest
 
 // Represent output data of UpdateCommentHandler
 type UpdateCommentResponseBody struct {
 	Message string `json:"message" xml:"message"`
-}
+} // @name UpdateCommentResponse
 
-// Updates post instance in database
+// UpdateCommentHandler godoc
+//
+// @id				UpdateComment
+// @Summary 		Updates comment record.
+// @Description 	Updates comment record in database using provided data.
+//
+// @Accept json
+//
+// @Produce json
+// @Produce xml
+//
+// @Param fields body UpdateCommentRequestBody true "data"
+//
+// @Success 200 	{object} UpdateCommentResponseBody
+// @Failure 400,404 {object} UpdateCommentResponseBody
+// @Failure 500 	{object} UpdateCommentResponseBody
+// @Failure default {object} UpdateCommentResponseBody
+//
+// @Router /posts/{id} [PUT]
 func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	logger := cm.ctx.Logger.Named("UpdateCommentHandler")
 

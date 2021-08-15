@@ -5,25 +5,42 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent input data of CreateCommentHandler
 type CreateCommentRequestBody struct {
 	PostID string `json:"postId" form:"postId" binding:"required"`
-	// TODO: consider getting user id from auth middleware in future
 	UserID string `json:"userId" form:"userId" binding:"required"`
 	Name   string `json:"name" form:"name" binding:"required"`
 	Body   string `json:"body" form:"body" binding:"required"`
-}
+} // @name CreateCommentRequest
 
 // Represent output data of CreateCommentHandler
 type CreateCommentResponseBody struct {
 	Comment *models.Comment `json:"comment" xml:"comment"`
 	Message string          `json:"message" xml:"message"`
-}
+} // @name CreateCommentResponse
 
-// Creates comment instance and stores it in database
+// CreateCommentHandler godoc
+//
+// @id				CreateComment
+// @Summary 		Creates comment record.
+// @Description 	Creates comment record in database using provided data.
+//
+// @Accept json
+//
+// @Produce json
+// @Produce xml
+//
+// @Param fields body CreateCommentRequestBody true "data"
+//
+// @Success 200 	{object} CreateCommentResponseBody
+// @Failure 400,404 {object} CreateCommentResponseBody
+// @Failure 500 	{object} CreateCommentResponseBody
+// @Failure default {object} CreateCommentResponseBody
+//
+// @Router /comments [POST]
 func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 	logger := cm.ctx.Logger.Named("CreateCommentHandler")
 

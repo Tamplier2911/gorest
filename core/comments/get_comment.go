@@ -5,7 +5,7 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -13,9 +13,23 @@ import (
 type GetCommentHandlerResponseBody struct {
 	Comment *models.Comment `json:"comment" xml:"comment"`
 	Message string          `json:"message" xml:"message"`
-}
+} // @name GetCommentResponse
 
-// Gets comment by provided id from database, returns comment
+// GetCommentHandler godoc
+//
+// @id				GetComment
+// @Summary 		Gets comment record.
+// @Description 	Gets comment record from database using provided id.
+//
+// @Produce json
+// @Produce xml
+//
+// @Success 200 	{object} GetCommentHandlerResponseBody
+// @Failure 400,404 {object} GetCommentHandlerResponseBody
+// @Failure 500 	{object} GetCommentHandlerResponseBody
+// @Failure default {object} GetCommentHandlerResponseBody
+//
+// @Router /comment/{id} [GET]
 func (cm *Comments) GetCommentHandler(c echo.Context) error {
 	logger := cm.ctx.Logger.Named("GetCommentHandler")
 

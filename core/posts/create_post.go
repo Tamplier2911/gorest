@@ -5,7 +5,7 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent input data of CreatePostHandler
@@ -13,15 +13,33 @@ type CreatePostRequestBody struct {
 	UserID string `json:"userId" form:"userId" binding:"required"`
 	Title  string `json:"title" form:"title" binding:"required"`
 	Body   string `json:"body" form:"body" binding:"required"`
-}
+} // @name CreatePostRequest
 
 // Represent output data of CreatePostHandler
 type CreatePostResponseBody struct {
 	Post    *models.Post `json:"post" xml:"post"`
 	Message string       `json:"message" xml:"message"`
-}
+} // @name CreatePostResponse
 
-// Creates post instance and stores it in database
+// CreatePostHandler godoc
+//
+// @id				CreatePost
+// @Summary 		Creates post record.
+// @Description 	Creates post record in database using provided data.
+//
+// @Accept json
+//
+// @Produce json
+// @Produce xml
+//
+// @Param fields body CreatePostRequestBody true "data"
+//
+// @Success 200 	{object} CreatePostResponseBody
+// @Failure 400,404 {object} CreatePostResponseBody
+// @Failure 500 	{object} CreatePostResponseBody
+// @Failure default {object} CreatePostResponseBody
+//
+// @Router /posts [POST]
 func (p *Posts) CreatePostHandler(c echo.Context) error {
 	logger := p.ctx.Logger.Named("CreatePostHandler")
 

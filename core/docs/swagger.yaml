@@ -1,0 +1,447 @@
+basePath: /api/v2
+definitions:
+  CreateCommentRequest:
+    properties:
+      body:
+        type: string
+      name:
+        type: string
+      postId:
+        type: string
+      userId:
+        type: string
+    required:
+    - body
+    - name
+    - postId
+    - userId
+    type: object
+  CreateCommentResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/models.Comment'
+      message:
+        type: string
+    type: object
+  CreatePostRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+      userId:
+        type: string
+    required:
+    - body
+    - title
+    - userId
+    type: object
+  CreatePostResponse:
+    properties:
+      message:
+        type: string
+      post:
+        $ref: '#/definitions/models.Post'
+    type: object
+  DeleteCommentResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  DeletePostResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  GetCommentResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/models.Comment'
+      message:
+        type: string
+    type: object
+  GetCommentsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/models.Comment'
+        type: array
+      message:
+        type: string
+      total:
+        type: integer
+    type: object
+  UpdateCommentRequest:
+    properties:
+      body:
+        type: string
+      name:
+        type: string
+    required:
+    - body
+    - name
+    type: object
+  UpdateCommentResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  UpdatePostRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  UpdatePostResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  github.com_Tamplier2911_gorest_core_posts.GetPostResponse:
+    properties:
+      message:
+        type: string
+      post:
+        $ref: '#/definitions/models.Post'
+    type: object
+  models.Comment:
+    properties:
+      body:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      postId:
+        type: string
+      userId:
+        type: string
+    type: object
+  models.Post:
+    properties:
+      body:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      userId:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: artyom.nikolaev@syahoo.com
+  description: This is a sample rest api realized in go language for education purposes.
+  title: Go REST API example
+  version: "2.0"
+paths:
+  /comment/{id}:
+    get:
+      description: Gets comment record from database using provided id.
+      operationId: GetComment
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+      summary: Gets comment record.
+  /comments:
+    get:
+      description: Gets comment records from database using provided query.
+      operationId: GetComments
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: postID
+        type: string
+      - in: query
+        name: userID
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+      summary: Gets comment records.
+    post:
+      consumes:
+      - application/json
+      description: Creates comment record in database using provided data.
+      operationId: CreateComment
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/CreateCommentRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+      summary: Creates comment record.
+  /comments/{id}:
+    delete:
+      description: Deletes comment record from database using provided id.
+      operationId: DeleteComment
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+      summary: Deletes comment record.
+  /posts:
+    get:
+      description: Gets post records from database using provided query.
+      operationId: GetPosts
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+      summary: Gets post records.
+    post:
+      consumes:
+      - application/json
+      description: Creates post record in database using provided data.
+      operationId: CreatePost
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/CreatePostRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+      summary: Creates post record.
+  /posts/{id}:
+    delete:
+      description: Deletes post record from database using provided id.
+      operationId: DeletePost
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+      summary: Deletes post record.
+    get:
+      description: Gets post record from database using provided id.
+      operationId: GetPost
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse'
+      summary: Gets post record.
+    put:
+      consumes:
+      - application/json
+      description: Updates comment record in database using provided data.
+      operationId: UpdateComment
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateCommentRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+      summary: Updates comment record.
+swagger: "2.0"
