@@ -14,17 +14,18 @@ func (c *Comments) Setup(ctx *service.Service) {
 	c.ctx = ctx
 
 	// configure router
-	c.ctx.Router.HandleFunc("/v1/comments", func(w http.ResponseWriter, r *http.Request) {
+	c.ctx.Router.HandleFunc("/api/v1/comments", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			c.GetCommentsHandler(w, r)
 		case http.MethodPost:
 			c.CreateCommentHandler(w, r)
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
-		w.WriteHeader(http.StatusNotFound)
 	})
 
-	c.ctx.Router.HandleFunc("/v1/comments/", func(w http.ResponseWriter, r *http.Request) {
+	c.ctx.Router.HandleFunc("/api/v1/comments/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			c.GetCommentHandler(w, r)
@@ -32,8 +33,9 @@ func (c *Comments) Setup(ctx *service.Service) {
 			c.UpdateCommentHandler(w, r)
 		case http.MethodDelete:
 			c.DeleteCommentHandler(w, r)
+		default:
+			w.WriteHeader(http.StatusNotFound)
 		}
-		w.WriteHeader(http.StatusNotFound)
 	})
 
 }

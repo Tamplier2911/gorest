@@ -1,9 +1,9 @@
 package posts
 
 import (
-	"net/http"
-
+	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
+	"github.com/labstack/echo"
 )
 
 type Posts struct {
@@ -14,25 +14,32 @@ func (p *Posts) Setup(ctx *service.Service) {
 	p.ctx = ctx
 
 	// configure router
-	p.ctx.Router.HandleFunc("/v1/posts", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			p.GetPostsHandler(w, r)
-		case http.MethodPost:
-			p.CreatePostHandler(w, r)
-		}
-		w.WriteHeader(http.StatusNotFound)
-	})
+	postsRouter := p.ctx.Echo.Group("/api/v2/posts")
 
-	p.ctx.Router.HandleFunc("/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			p.GetPostHandler(w, r)
-		case http.MethodPut:
-			p.UpdatePostHandler(w, r)
-		case http.MethodDelete:
-			p.DeletePostHandler(w, r)
-		}
-		w.WriteHeader(http.StatusNotFound)
-	})
+	// auth middleware
+	// postsRouter.Use()
+
+	postsRouter.GET("", p.GetPostsHandler)
+	postsRouter.POST("", p.CreatePostHandler)
+	postsRouter.GET("/:id", p.GetPostHandler)
+	postsRouter.PUT("/:id", p.UpdatePostHandler)
+	postsRouter.DELETE("/:id", p.DeletePostHandler)
+
+}
+
+// Writes response based on accept header
+// if header has application/xml mime type as first index, write response in xml else write response in json
+func (p *Posts) ResponseWriter(c echo.Context, statusCode int, res interface{}) error {
+	// check accept header
+	accept := c.Request().Header["Accept"][0]
+
+	// based on first value in accept header write response
+	switch accept {
+	case string(models.MimeTypesXML):
+		// response with xml
+		return c.XML(statusCode, res)
+	default:
+		// default response with json
+		return c.JSON(statusCode, res)
+	}
 }

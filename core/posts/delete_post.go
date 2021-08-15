@@ -1,14 +1,11 @@
 package posts
 
 import (
-	"encoding/json"
-	"encoding/xml"
-	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
+	"github.com/labstack/echo"
 )
 
 // Represent output data of DeletePostHandler
@@ -17,43 +14,38 @@ type DeletePostHandlerResponseBody struct {
 }
 
 // Deletes post by provided id from database
-func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
+func (p *Posts) DeletePostHandler(c echo.Context) error {
 	logger := p.ctx.Logger.Named("DeletePostsHandler")
 
-	// TODO: consider abstracting this to a middleware
-
-	// get id from path
-	logger.Infow("getting id from path")
-	pathSlice := strings.Split(r.URL.Path, "/")
-	id := pathSlice[len(pathSlice)-1]
-	if id == "" {
-		err := errors.New("failed to get id from path")
-		logger.Errorw("failed to get id from path", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	// get id from path param
+	logger.Infow("getting id from path params")
+	id := c.Param("id")
 	logger = logger.With("id", id)
 
 	// parse uuid
 	logger.Infow("parsing uuid from path")
-	uid, err := uuid.Parse(id)
+	postId, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return p.ResponseWriter(c, http.StatusBadRequest, DeletePostHandlerResponseBody{
+			Message: "failed to parse uuid",
+		})
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("postId", postId)
 
 	// delete post from database
 	logger.Infow("deleting post from database")
-	result := p.ctx.MySQL.Model(&models.Post{}).Delete(&models.Post{Base: models.Base{ID: uid}})
+	result := p.ctx.MySQL.Model(&models.Post{}).Delete(&models.Post{Base: models.Base{ID: postId}})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
-			result.Error = errors.New("record not found")
+			return p.ResponseWriter(c, http.StatusBadRequest, DeletePostHandlerResponseBody{
+				Message: "failed to find record with provided id",
+			})
 		}
-		logger.Errorw("failed to delete post with provided id from database", "err", err)
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
-		return
+		logger.Errorw("failed to delete post record from database", "err", err)
+		return p.ResponseWriter(c, http.StatusInternalServerError, DeletePostHandlerResponseBody{
+			Message: "failed to delete post from database",
+		})
 	}
 
 	// assemble response body
@@ -63,32 +55,8 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("res", res)
 
-	// get clients accept header
-	accept := r.Header.Get("Accept")
-
-	var b []byte
-	switch accept {
-	case string(models.MimeTypesXML):
-		// response with xml
-		logger.Infow("marshaling response body to xml")
-		w.Header().Set("Content-Type", string(models.MimeTypesXML))
-		b, err = xml.Marshal(res)
-	default:
-		// default response with json
-		logger.Infow("marshaling response body to json")
-		w.Header().Set("Content-Type", string(models.MimeTypesJSON))
-		b, err = json.Marshal(res)
-	}
-
-	if err != nil {
-		logger.Errorw("failed to marshal response body", "err", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// write headers
-	w.WriteHeader(http.StatusOK)
-
 	logger.Infow("successfully deleted post from database")
-	w.Write(b)
+	return p.ResponseWriter(c, http.StatusNoContent, DeletePostHandlerResponseBody{
+		Message: "successfully deleted post from database",
+	})
 }
