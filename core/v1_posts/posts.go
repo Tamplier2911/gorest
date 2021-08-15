@@ -1,4 +1,4 @@
-package posts_v1
+package v1_posts
 
 import (
 	"net/http"

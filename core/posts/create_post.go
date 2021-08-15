@@ -39,7 +39,7 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 
 	// parse uuid id
 	logger.Infow("parsing uuid from body")
-	userId, err := uuid.Parse(string(body.UserID))
+	userId, err := uuid.Parse(body.UserID)
 	if err != nil {
 		logger.Errorw("failed to parse uuid from body", "err", err)
 		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostResponseBody{
@@ -72,5 +72,5 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 	logger = logger.With("res", res)
 
 	logger.Infow("successfully created post")
-	return p.ResponseWriter(c, http.StatusOK, res)
+	return p.ResponseWriter(c, http.StatusCreated, res)
 }
