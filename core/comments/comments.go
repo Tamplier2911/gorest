@@ -24,7 +24,7 @@ func (cm *Comments) Setup(ctx *service.Service) {
 	CommentsRouter.POST("", cm.CreateCommentHandler)
 	CommentsRouter.GET("/:id", cm.GetCommentHandler)
 	CommentsRouter.PUT("/:id", cm.UpdateCommentHandler)
-	// CommentsRouter.DELETE("/:id", cm.DeleteCommentHandler)
+	CommentsRouter.DELETE("/:id", cm.DeleteCommentHandler)
 }
 
 // Writes response based on accept header

@@ -72,5 +72,5 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 	logger = logger.With("res", res)
 
 	logger.Infow("successfully created post")
-	return p.ResponseWriter(c, http.StatusOK, res)
+	return p.ResponseWriter(c, http.StatusCreated, res)
 }
