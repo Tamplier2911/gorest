@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Tamplier2911/gorest/core/comments"
 	"github.com/Tamplier2911/gorest/core/posts"
 	v1_comments "github.com/Tamplier2911/gorest/core/v1_comments"
 	v1_posts "github.com/Tamplier2911/gorest/core/v1_posts"
@@ -37,14 +38,17 @@ func (m *Monolith) Setup() {
 	deprecatedComments := v1_comments.Comments{}
 	deprecatedComments.Setup(&m.Service)
 
-	//v2
+	// v2
 	// posts
 	posts := posts.Posts{}
 	posts.Setup(&m.Service)
+	// comments
+	comments := comments.Comments{}
+	comments.Setup(&m.Service)
 }
 
 func main() {
-	s := Monolith{}
-	s.Setup()
-	s.Start()
+	m := Monolith{}
+	m.Setup()
+	m.Start()
 }

@@ -1,4 +1,4 @@
-package comments
+package v1_comments
 
 import (
 	"encoding/json"

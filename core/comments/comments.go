@@ -1,4 +1,4 @@
-package posts
+package comments
 
 import (
 	"github.com/Tamplier2911/gorest/pkg/models"
@@ -6,29 +6,29 @@ import (
 	"github.com/labstack/echo"
 )
 
-type Posts struct {
+type Comments struct {
 	ctx *service.Service
 }
 
-func (p *Posts) Setup(ctx *service.Service) {
-	p.ctx = ctx
+func (cm *Comments) Setup(ctx *service.Service) {
+	cm.ctx = ctx
 
 	// configure router
-	PostsRouter := p.ctx.Echo.Group("/api/v2/posts")
+	CommentsRouter := cm.ctx.Echo.Group("/api/v2/comments")
 
 	// auth middleware
-	// PostsRouter.Use()
+	// CommentsRouter.Use()
 
-	PostsRouter.GET("", p.GetPostsHandler)
-	PostsRouter.POST("", p.CreatePostHandler)
-	PostsRouter.GET("/:id", p.GetPostHandler)
-	PostsRouter.PUT("/:id", p.UpdatePostHandler)
-	PostsRouter.DELETE("/:id", p.DeletePostHandler)
+	// CommentsRouter.GET("", cm.GetCommentsHandler)
+	CommentsRouter.POST("", cm.CreateCommentHandler)
+	// CommentsRouter.GET("/:id", cm.GetCommentHandler)
+	// CommentsRouter.PUT("/:id", cm.UpdateCommentHandler)
+	// CommentsRouter.DELETE("/:id", cm.DeleteCommentHandler)
 }
 
 // Writes response based on accept header
 // if header has application/xml mime type as first index, write response in xml else write response in json
-func (p *Posts) ResponseWriter(c echo.Context, statusCode int, res interface{}) error {
+func (p *Comments) ResponseWriter(c echo.Context, statusCode int, res interface{}) error {
 	// check accept header
 	accept := c.Request().Header["Accept"][0]
 
