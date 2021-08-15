@@ -39,19 +39,19 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 
 	// parse uuid id
 	logger.Infow("parsing uuid from body")
-	uid, err := uuid.Parse(string(body.UserID))
+	userId, err := uuid.Parse(string(body.UserID))
 	if err != nil {
 		logger.Errorw("failed to parse uuid from body", "err", err)
 		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostResponseBody{
 			Message: "failed to parse request uuid",
 		})
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("userId", userId)
 
 	// save instance of post in database
 	logger.Infow("saving post to database")
 	post := models.Post{
-		UserID: uid,
+		UserID: userId,
 		Title:  body.Title,
 		Body:   body.Body,
 	}

@@ -30,14 +30,14 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 
 	// parse uuid id
 	logger.Infow("parsing uuid from path")
-	uid, err := uuid.Parse(id)
+	postId, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
 		return p.ResponseWriter(c, http.StatusBadRequest, UpdatePostResponseBody{
 			Message: "failed to parse uuid",
 		})
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("postId", postId)
 
 	// parse body data
 	logger.Infow("parsing request body")
@@ -55,12 +55,12 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 	logger.Infow("updating post in database")
 	result := p.ctx.MySQL.
 		Model(&models.Post{}).
-		Where(&models.Post{Base: models.Base{ID: uid}}).
+		Where(&models.Post{Base: models.Base{ID: postId}}).
 		Updates(&models.Post{Title: body.Title, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostResponseBody{
-				Message: "could not find record with this id to update",
+				Message: "failed to find record with provided id",
 			})
 		}
 		logger.Errorw("failed to update post in database", "err", result.Error)

@@ -26,19 +26,19 @@ func (p *Posts) GetPostHandler(c echo.Context) error {
 
 	// parse uuid
 	logger.Infow("parsing uuid from path")
-	uid, err := uuid.Parse(id)
+	postId, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
 		return p.ResponseWriter(c, http.StatusBadRequest, GetPostHandlerResponseBody{
 			Message: "failed to parse uuid",
 		})
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("postId", postId)
 
 	// retreive post from database
 	logger.Infow("getting post from database")
 	var post models.Post
-	err = p.ctx.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: uid}}).First(&post).Error
+	err = p.ctx.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: postId}}).First(&post).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)
