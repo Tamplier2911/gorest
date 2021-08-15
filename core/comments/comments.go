@@ -21,7 +21,7 @@ func (cm *Comments) Setup(ctx *service.Service) {
 
 	CommentsRouter.GET("", cm.GetCommentsHandler)
 	CommentsRouter.POST("", cm.CreateCommentHandler)
-	// CommentsRouter.GET("/:id", cm.GetCommentHandler)
+	CommentsRouter.GET("/:id", cm.GetCommentHandler)
 	// CommentsRouter.PUT("/:id", cm.UpdateCommentHandler)
 	// CommentsRouter.DELETE("/:id", cm.DeleteCommentHandler)
 }
