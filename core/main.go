@@ -30,19 +30,17 @@ func (m *Monolith) Setup() {
 		m.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
-	// v1
-	// posts
+	// /api/v1/posts
 	deprecatedPosts := v1_posts.Posts{}
 	deprecatedPosts.Setup(&m.Service)
-	// comments
+	// /api/v1/comments
 	deprecatedComments := v1_comments.Comments{}
 	deprecatedComments.Setup(&m.Service)
 
-	// v2
-	// posts
+	// /api/v2/posts
 	posts := posts.Posts{}
 	posts.Setup(&m.Service)
-	// comments
+	// /api/v2/comments
 	comments := comments.Comments{}
 	comments.Setup(&m.Service)
 }
