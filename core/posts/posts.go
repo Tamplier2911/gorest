@@ -25,9 +25,9 @@ func (p *Posts) Setup(ctx *service.Service) {
 	postsRouter.POST("", p.CreatePostHandler)
 
 	// singular
-	// postsRouter.GET()
-	// postsRouter.PUT()
-	// postsRouter.DELETE()
+	postsRouter.GET("/:id", p.GetPostHandler)
+	// postsRouter.PUT("/:id",)
+	// postsRouter.DELETE("/:id",)
 
 }
 
