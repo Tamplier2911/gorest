@@ -9,7 +9,7 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/config"
 	"github.com/Tamplier2911/gorest/pkg/logger"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
