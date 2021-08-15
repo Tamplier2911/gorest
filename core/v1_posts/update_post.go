@@ -59,7 +59,7 @@ func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger = logger.With("req", body)
+	logger = logger.With("body", body)
 
 	// update post in database
 	logger.Infow("updating post in database")
@@ -71,7 +71,7 @@ func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
 		}
-		logger.Errorw("failed to update post in database", "err", err)
+		logger.Errorw("failed to update post in database", "err", result.Error)
 		http.Error(w, result.Error.Error(), http.StatusBadRequest)
 		return
 	}
