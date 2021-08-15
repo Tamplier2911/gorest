@@ -17,6 +17,7 @@ func (p *Posts) Setup(ctx *service.Service) {
 	PostsRouter := p.ctx.Echo.Group("/api/v2/posts")
 
 	// auth middleware
+	// TODO: only owners can remove and update posts
 	// PostsRouter.Use()
 
 	PostsRouter.GET("", p.GetPostsHandler)

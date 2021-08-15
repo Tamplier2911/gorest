@@ -24,7 +24,7 @@ type UpdateCommentResponseBody struct {
 
 // Updates post instance in database
 func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("UpdatePostHandler")
+	logger := c.ctx.Logger.Named("UpdateCommentHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -59,7 +59,7 @@ func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger = logger.With("req", body)
+	logger = logger.With("body", body)
 
 	// update post in database
 	logger.Infow("updating post in database")
