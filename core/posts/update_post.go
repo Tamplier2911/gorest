@@ -5,23 +5,43 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // Represent input data of UpdatePostHandler
 type UpdatePostRequestBody struct {
 	Title string `json:"title" form:"title" binding:"required"`
 	Body  string `json:"body" form:"body" binding:"required"`
-}
+} // @name UpdatePostRequest
 
 // Represent output data of UpdatePostHandler
 type UpdatePostResponseBody struct {
 	Message string `json:"message" xml:"message"`
-}
+} // @name UpdatePostResponse
 
-// Updates post instance in database
+// UpdatePostHandler godoc
+//
+// @id				UpdatePost
+// @Summary 		Updates post record.
+// @Description 	Updates post record in database using provided data.
+//
+// @Tags			Posts
+//
+// @Accept json
+//
+// @Produce json
+// @Produce xml
+//
+// @Param fields body UpdatePostRequestBody true "data"
+//
+// @Success 200 	{object} UpdatePostResponseBody
+// @Failure 400,404 {object} UpdatePostResponseBody
+// @Failure 500 	{object} UpdatePostResponseBody
+// @Failure default {object} UpdatePostResponseBody
+//
+// @Router /posts/{id} [PUT]
 func (p *Posts) UpdatePostHandler(c echo.Context) error {
-	logger := p.ctx.Logger.Named("UpdatePostHandler")
+	logger := p.Logger.Named("UpdatePostHandler")
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -53,13 +73,13 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 
 	// update post in database
 	logger.Infow("updating post in database")
-	result := p.ctx.MySQL.
+	result := p.MySQL.
 		Model(&models.Post{}).
 		Where(&models.Post{Base: models.Base{ID: postId}}).
 		Updates(&models.Post{Title: body.Title, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
-			return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostResponseBody{
+			return p.ResponseWriter(c, http.StatusNotFound, UpdatePostResponseBody{
 				Message: "failed to find record with provided id",
 			})
 		}
