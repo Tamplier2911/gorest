@@ -25,6 +25,8 @@ type UpdatePostResponseBody struct {
 // @Summary 		Updates post record.
 // @Description 	Updates post record in database using provided data.
 //
+// @Tags			Posts
+//
 // @Accept json
 //
 // @Produce json
@@ -39,7 +41,7 @@ type UpdatePostResponseBody struct {
 //
 // @Router /posts/{id} [PUT]
 func (p *Posts) UpdatePostHandler(c echo.Context) error {
-	logger := p.ctx.Logger.Named("UpdatePostHandler")
+	logger := p.Logger.Named("UpdatePostHandler")
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -71,13 +73,13 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 
 	// update post in database
 	logger.Infow("updating post in database")
-	result := p.ctx.MySQL.
+	result := p.MySQL.
 		Model(&models.Post{}).
 		Where(&models.Post{Base: models.Base{ID: postId}}).
 		Updates(&models.Post{Title: body.Title, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
-			return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostResponseBody{
+			return p.ResponseWriter(c, http.StatusNotFound, UpdatePostResponseBody{
 				Message: "failed to find record with provided id",
 			})
 		}

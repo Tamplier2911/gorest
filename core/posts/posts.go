@@ -7,24 +7,24 @@ import (
 )
 
 type Posts struct {
-	ctx *service.Service
+	*service.Service
 }
 
-func (p *Posts) Setup(ctx *service.Service) {
-	p.ctx = ctx
+func (p *Posts) Setup(service *service.Service) {
+	p.Service = service
 
 	// configure router
-	// PostsRouter := p.ctx.Echo.Group("/api/v2/posts")
+	PostsRouter := p.Echo.Group("/api/v2/posts")
 
 	// auth middleware
 	// TODO: only owners can remove and update posts
 	// PostsRouter.Use()
 
-	// PostsRouter.GET("", p.GetPostsHandler)
-	// PostsRouter.POST("", p.CreatePostHandler)
-	// PostsRouter.GET("/:id", p.GetPostHandler)
-	// PostsRouter.PUT("/:id", p.UpdatePostHandler)
-	// PostsRouter.DELETE("/:id", p.DeletePostHandler)
+	PostsRouter.GET("", p.GetPostsHandler)
+	PostsRouter.POST("", p.CreatePostHandler)
+	PostsRouter.GET("/:id", p.GetPostHandler)
+	PostsRouter.PUT("/:id", p.UpdatePostHandler)
+	PostsRouter.DELETE("/:id", p.DeletePostHandler)
 }
 
 // Writes response based on accept header

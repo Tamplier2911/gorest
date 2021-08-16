@@ -26,55 +26,15 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/comment/{id}": {
-            "get": {
-                "description": "Gets comment record from database using provided id.",
-                "produces": [
-                    "application/json",
-                    "text/xml"
-                ],
-                "summary": "Gets comment record.",
-                "operationId": "GetComment",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/GetCommentResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/GetCommentResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/GetCommentResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/GetCommentResponse"
-                        }
-                    },
-                    "default": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/GetCommentResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/comments": {
             "get": {
                 "description": "Gets comment records from database using provided query.",
                 "produces": [
                     "application/json",
                     "text/xml"
+                ],
+                "tags": [
+                    "Comments"
                 ],
                 "summary": "Gets comment records.",
                 "operationId": "GetComments",
@@ -142,6 +102,9 @@ var doc = `{
                     "application/json",
                     "text/xml"
                 ],
+                "tags": [
+                    "Comments"
+                ],
                 "summary": "Creates comment record.",
                 "operationId": "CreateComment",
                 "parameters": [
@@ -156,8 +119,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/CreateCommentResponse"
                         }
@@ -190,17 +153,122 @@ var doc = `{
             }
         },
         "/comments/{id}": {
+            "get": {
+                "description": "Gets comment record from database using provided id.",
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Gets comment record.",
+                "operationId": "GetComment",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetCommentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/GetCommentResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/GetCommentResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/GetCommentResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/GetCommentResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates comment record in database using provided data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Updates comment record.",
+                "operationId": "UpdateComment",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "fields",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCommentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCommentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCommentResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCommentResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCommentResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCommentResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes comment record from database using provided id.",
                 "produces": [
                     "application/json",
                     "text/xml"
                 ],
+                "tags": [
+                    "Comments"
+                ],
                 "summary": "Deletes comment record.",
                 "operationId": "DeleteComment",
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
                             "$ref": "#/definitions/DeleteCommentResponse"
                         }
@@ -238,6 +306,9 @@ var doc = `{
                 "produces": [
                     "application/json",
                     "text/xml"
+                ],
+                "tags": [
+                    "Posts"
                 ],
                 "summary": "Gets post records.",
                 "operationId": "GetPosts",
@@ -295,6 +366,9 @@ var doc = `{
                     "application/json",
                     "text/xml"
                 ],
+                "tags": [
+                    "Posts"
+                ],
                 "summary": "Creates post record.",
                 "operationId": "CreatePost",
                 "parameters": [
@@ -309,8 +383,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/CreatePostResponse"
                         }
@@ -349,6 +423,9 @@ var doc = `{
                     "application/json",
                     "text/xml"
                 ],
+                "tags": [
+                    "Posts"
+                ],
                 "summary": "Gets post record.",
                 "operationId": "GetPost",
                 "responses": {
@@ -385,7 +462,7 @@ var doc = `{
                 }
             },
             "put": {
-                "description": "Updates comment record in database using provided data.",
+                "description": "Updates post record in database using provided data.",
                 "consumes": [
                     "application/json"
                 ],
@@ -393,8 +470,11 @@ var doc = `{
                     "application/json",
                     "text/xml"
                 ],
-                "summary": "Updates comment record.",
-                "operationId": "UpdateComment",
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Updates post record.",
+                "operationId": "UpdatePost",
                 "parameters": [
                     {
                         "description": "data",
@@ -402,7 +482,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/UpdateCommentRequest"
+                            "$ref": "#/definitions/UpdatePostRequest"
                         }
                     }
                 ],
@@ -410,31 +490,31 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/UpdateCommentResponse"
+                            "$ref": "#/definitions/UpdatePostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/UpdateCommentResponse"
+                            "$ref": "#/definitions/UpdatePostResponse"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/UpdateCommentResponse"
+                            "$ref": "#/definitions/UpdatePostResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/UpdateCommentResponse"
+                            "$ref": "#/definitions/UpdatePostResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/UpdateCommentResponse"
+                            "$ref": "#/definitions/UpdatePostResponse"
                         }
                     }
                 }
@@ -445,11 +525,14 @@ var doc = `{
                     "application/json",
                     "text/xml"
                 ],
+                "tags": [
+                    "Posts"
+                ],
                 "summary": "Deletes post record.",
                 "operationId": "DeletePost",
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
                             "$ref": "#/definitions/DeletePostResponse"
                         }

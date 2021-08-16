@@ -21,6 +21,8 @@ type GetCommentHandlerResponseBody struct {
 // @Summary 		Gets comment record.
 // @Description 	Gets comment record from database using provided id.
 //
+// @Tags			Comments
+//
 // @Produce json
 // @Produce xml
 //
@@ -29,9 +31,9 @@ type GetCommentHandlerResponseBody struct {
 // @Failure 500 	{object} GetCommentHandlerResponseBody
 // @Failure default {object} GetCommentHandlerResponseBody
 //
-// @Router /comment/{id} [GET]
+// @Router /comments/{id} [GET]
 func (cm *Comments) GetCommentHandler(c echo.Context) error {
-	logger := cm.ctx.Logger.Named("GetCommentHandler")
+	logger := cm.Logger.Named("GetCommentHandler")
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -52,7 +54,7 @@ func (cm *Comments) GetCommentHandler(c echo.Context) error {
 	// retreive comment from database
 	logger.Infow("getting comment from database")
 	var comment models.Comment
-	err = cm.ctx.MySQL.
+	err = cm.MySQL.
 		Model(&models.Comment{}).
 		Where(&models.Comment{Base: models.Base{ID: commentId}}).
 		First(&comment).
@@ -60,7 +62,7 @@ func (cm *Comments) GetCommentHandler(c echo.Context) error {
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find comment with provided id in database", "err", err)
-			return cm.ResponseWriter(c, http.StatusBadRequest, GetCommentHandlerResponseBody{
+			return cm.ResponseWriter(c, http.StatusNotFound, GetCommentHandlerResponseBody{
 				Message: "failed to find comment with provided id in database",
 			})
 		}

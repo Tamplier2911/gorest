@@ -26,6 +26,8 @@ type UpdateCommentResponseBody struct {
 // @Summary 		Updates comment record.
 // @Description 	Updates comment record in database using provided data.
 //
+// @Tags			Comments
+//
 // @Accept json
 //
 // @Produce json
@@ -38,9 +40,9 @@ type UpdateCommentResponseBody struct {
 // @Failure 500 	{object} UpdateCommentResponseBody
 // @Failure default {object} UpdateCommentResponseBody
 //
-// @Router /posts/{id} [PUT]
+// @Router /comments/{id} [PUT]
 func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
-	logger := cm.ctx.Logger.Named("UpdateCommentHandler")
+	logger := cm.Logger.Named("UpdateCommentHandler")
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -72,14 +74,14 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 
 	// update post in database
 	logger.Infow("updating post in database")
-	result := cm.ctx.MySQL.
+	result := cm.MySQL.
 		Model(&models.Comment{}).
 		Where(&models.Comment{Base: models.Base{ID: commentId}}).
 		Updates(&models.Comment{Name: body.Name, Body: body.Body})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
-			return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentResponseBody{
+			return cm.ResponseWriter(c, http.StatusNotFound, UpdateCommentResponseBody{
 				Message: "failed to find comment with provided id in database",
 			})
 		}

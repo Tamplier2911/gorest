@@ -27,6 +27,8 @@ type CreatePostResponseBody struct {
 // @Summary 		Creates post record.
 // @Description 	Creates post record in database using provided data.
 //
+// @Tags			Posts
+//
 // @Accept json
 //
 // @Produce json
@@ -34,14 +36,14 @@ type CreatePostResponseBody struct {
 //
 // @Param fields body CreatePostRequestBody true "data"
 //
-// @Success 200 	{object} CreatePostResponseBody
+// @Success 201 	{object} CreatePostResponseBody
 // @Failure 400,404 {object} CreatePostResponseBody
 // @Failure 500 	{object} CreatePostResponseBody
 // @Failure default {object} CreatePostResponseBody
 //
 // @Router /posts [POST]
 func (p *Posts) CreatePostHandler(c echo.Context) error {
-	logger := p.ctx.Logger.Named("CreatePostHandler")
+	logger := p.Logger.Named("CreatePostHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
@@ -73,7 +75,7 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 		Title:  body.Title,
 		Body:   body.Body,
 	}
-	err = p.ctx.MySQL.Model(&models.Post{}).Create(&post).Error
+	err = p.MySQL.Model(&models.Post{}).Create(&post).Error
 	if err != nil {
 		logger.Errorw("failed to save post in database", "err", err)
 		return p.ResponseWriter(c, http.StatusInternalServerError, CreatePostResponseBody{

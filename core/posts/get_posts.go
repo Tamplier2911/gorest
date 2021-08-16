@@ -27,6 +27,8 @@ type GetPostsHandlerResponseBody struct {
 // @Summary 		Gets post records.
 // @Description 	Gets post records from database using provided query.
 //
+// @Tags			Posts
+//
 // @Produce json
 // @Produce xml
 //
@@ -39,7 +41,7 @@ type GetPostsHandlerResponseBody struct {
 //
 // @Router /posts [GET]
 func (p *Posts) GetPostsHandler(c echo.Context) error {
-	logger := p.ctx.Logger.Named("GetPostsHandler")
+	logger := p.Logger.Named("GetPostsHandler")
 
 	logger.Infow("parsing request query params")
 	var query GetPostsHandlerRequestQuery
@@ -62,7 +64,7 @@ func (p *Posts) GetPostsHandler(c echo.Context) error {
 	logger.Infow("getting posts from database")
 	var total int64
 	var posts []models.Post
-	err = p.ctx.MySQL.Model(&models.Post{}).
+	err = p.MySQL.Model(&models.Post{}).
 		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
 		Limit(limit).

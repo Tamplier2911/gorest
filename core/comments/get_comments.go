@@ -30,6 +30,8 @@ type GetCommentsHandlerResponseBody struct {
 // @Summary 		Gets comment records.
 // @Description 	Gets comment records from database using provided query.
 //
+// @Tags			Comments
+//
 // @Produce json
 // @Produce xml
 //
@@ -42,7 +44,7 @@ type GetCommentsHandlerResponseBody struct {
 //
 // @Router /comments [GET]
 func (cm *Comments) GetCommentsHandler(c echo.Context) error {
-	logger := cm.ctx.Logger.Named("GetCommentsHandler")
+	logger := cm.Logger.Named("GetCommentsHandler")
 
 	logger.Infow("parsing request query params")
 	var query GetCommentsHandlerRequestQuery
@@ -55,7 +57,7 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 	}
 	logger = logger.With("query", query)
 
-	stmt := cm.ctx.MySQL.Model(&models.Comment{})
+	stmt := cm.MySQL.Model(&models.Comment{})
 
 	// append post id to where clause
 	if query.PostID != "" {

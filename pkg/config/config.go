@@ -43,7 +43,7 @@ func New() *Config {
 
 	viper.SetDefault("production", false)
 	viper.SetDefault("log_level", "info")
-	viper.SetDefault("base_url", "http://127.0.0.1/v1")
+	viper.SetDefault("base_url", "http://127.0.0.1")
 	viper.SetDefault("port", "8080")
 	viper.SetDefault("mysql_host", "127.0.0.1:3306")
 	viper.SetDefault("mysql_user", "root")

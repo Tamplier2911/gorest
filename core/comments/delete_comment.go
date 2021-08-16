@@ -19,17 +19,19 @@ type DeleteCommentHandlerResponseBody struct {
 // @Summary 		Deletes comment record.
 // @Description 	Deletes comment record from database using provided id.
 //
+// @Tags			Comments
+//
 // @Produce json
 // @Produce xml
 //
-// @Success 200 	{object} DeleteCommentHandlerResponseBody
+// @Success 204 	{object} DeleteCommentHandlerResponseBody
 // @Failure 400,404 {object} DeleteCommentHandlerResponseBody
 // @Failure 500 	{object} DeleteCommentHandlerResponseBody
 // @Failure default {object} DeleteCommentHandlerResponseBody
 //
 // @Router /comments/{id} [DELETE]
 func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
-	logger := cm.ctx.Logger.Named("DeleteCommentHandler")
+	logger := cm.Logger.Named("DeleteCommentHandler")
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -49,10 +51,10 @@ func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 
 	// delete comment from database
 	logger.Infow("deleting comment from database")
-	result := cm.ctx.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: commentId}})
+	result := cm.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: commentId}})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
-			return cm.ResponseWriter(c, http.StatusBadRequest, DeleteCommentHandlerResponseBody{
+			return cm.ResponseWriter(c, http.StatusNotFound, DeleteCommentHandlerResponseBody{
 				Message: "failed to find comment with provided id in database",
 			})
 		}
@@ -70,5 +72,5 @@ func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 	logger = logger.With("res", res)
 
 	logger.Infow("successfully deleted comment from database")
-	return cm.ResponseWriter(c, http.StatusInternalServerError, res)
+	return cm.ResponseWriter(c, http.StatusNoContent, res)
 }

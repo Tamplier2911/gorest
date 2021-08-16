@@ -28,6 +28,8 @@ type CreateCommentResponseBody struct {
 // @Summary 		Creates comment record.
 // @Description 	Creates comment record in database using provided data.
 //
+// @Tags			Comments
+//
 // @Accept json
 //
 // @Produce json
@@ -35,14 +37,14 @@ type CreateCommentResponseBody struct {
 //
 // @Param fields body CreateCommentRequestBody true "data"
 //
-// @Success 200 	{object} CreateCommentResponseBody
+// @Success 201 	{object} CreateCommentResponseBody
 // @Failure 400,404 {object} CreateCommentResponseBody
 // @Failure 500 	{object} CreateCommentResponseBody
 // @Failure default {object} CreateCommentResponseBody
 //
 // @Router /comments [POST]
 func (cm *Comments) CreateCommentHandler(c echo.Context) error {
-	logger := cm.ctx.Logger.Named("CreateCommentHandler")
+	logger := cm.Logger.Named("CreateCommentHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
@@ -85,7 +87,7 @@ func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 		Name:   body.Name,
 		Body:   body.Body,
 	}
-	err = cm.ctx.MySQL.Model(&models.Comment{}).Create(&comment).Error
+	err = cm.MySQL.Model(&models.Comment{}).Create(&comment).Error
 	if err != nil {
 		logger.Errorw("failed to save comment in database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, CreateCommentResponseBody{
