@@ -7,6 +7,9 @@ import (
 	v1_posts "github.com/Tamplier2911/gorest/core/v1_posts"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
+
+	_ "github.com/Tamplier2911/gorest/core/docs"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type Monolith struct {
@@ -19,9 +22,7 @@ func (m *Monolith) Setup() {
 		Echo:  true,
 	})
 
-	// default port '8080' || export GOREST_PORT='8080'
-	// or manually
-	// m.Server.Addr = ":3000"
+	// default port '8080' || export GOREST_PORT='8080' || m.Server.Addr = ":3000"
 
 	// automigrate models
 	m.Logger.Info("automigrating models")
@@ -37,6 +38,9 @@ func (m *Monolith) Setup() {
 	deprecatedComments := v1_comments.Comments{}
 	deprecatedComments.Setup(&m.Service)
 
+	// /swagger/index.html
+	m.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	// /api/v2/posts
 	posts := posts.Posts{}
 	posts.Setup(&m.Service)
@@ -45,6 +49,14 @@ func (m *Monolith) Setup() {
 	comments.Setup(&m.Service)
 }
 
+// @title Go REST API example
+// @version 2.0
+// @description This is a sample rest api realized in go language for education purposes.
+//
+// @contact.email artyom.nikolaev@syahoo.com
+//
+// @host localhost:8000
+// @BasePath /api/v2
 func main() {
 	m := Monolith{}
 	m.Setup()

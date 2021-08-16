@@ -3,18 +3,19 @@ package comments
 import (
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type Comments struct {
-	ctx *service.Service
+	*service.Service
 }
 
-func (cm *Comments) Setup(ctx *service.Service) {
-	cm.ctx = ctx
+// @BasePath /api/v2/comments
+func (cm *Comments) Setup(service *service.Service) {
+	cm.Service = service
 
 	// configure router
-	CommentsRouter := cm.ctx.Echo.Group("/api/v2/comments")
+	CommentsRouter := cm.Echo.Group("/api/v2/comments")
 
 	// auth middleware
 	// TODO: only owners can remove and update comments

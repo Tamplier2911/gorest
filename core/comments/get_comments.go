@@ -5,7 +5,7 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm/clause"
 )
 
@@ -15,18 +15,36 @@ type GetCommentsHandlerRequestQuery struct {
 	Offset int    `query:"offset"`
 	UserID string `query:"userId"`
 	PostID string `query:"postId"`
-}
+} // @name GetCommentsRequest
 
 // Represent output data of GetCommentsHandler
 type GetCommentsHandlerResponseBody struct {
 	Comments *[]models.Comment `json:"comments" xml:"comments"`
 	Total    int64             `json:"total" xml:"total"`
 	Message  string            `json:"message" xml:"message"`
-}
+} // @name GetCommentsResponse
 
-// Get all comments from database, takes limit, offset, userId, and postId query parameters, returns comments
+// GetCommentsHandler godoc
+//
+// @id				GetComments
+// @Summary 		Gets comment records.
+// @Description 	Gets comment records from database using provided query.
+//
+// @Tags			Comments
+//
+// @Produce json
+// @Produce xml
+//
+// @Param fields query GetCommentsHandlerRequestQuery true "data"
+//
+// @Success 200 	{object} GetCommentsHandlerResponseBody
+// @Failure 400,404 {object} GetCommentsHandlerResponseBody
+// @Failure 500 	{object} GetCommentsHandlerResponseBody
+// @Failure default {object} GetCommentsHandlerResponseBody
+//
+// @Router /comments [GET]
 func (cm *Comments) GetCommentsHandler(c echo.Context) error {
-	logger := cm.ctx.Logger.Named("GetCommentsHandler")
+	logger := cm.Logger.Named("GetCommentsHandler")
 
 	logger.Infow("parsing request query params")
 	var query GetCommentsHandlerRequestQuery
@@ -39,7 +57,7 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 	}
 	logger = logger.With("query", query)
 
-	stmt := cm.ctx.MySQL.Model(&models.Comment{})
+	stmt := cm.MySQL.Model(&models.Comment{})
 
 	// append post id to where clause
 	if query.PostID != "" {

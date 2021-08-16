@@ -3,18 +3,18 @@ package posts
 import (
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type Posts struct {
-	ctx *service.Service
+	*service.Service
 }
 
-func (p *Posts) Setup(ctx *service.Service) {
-	p.ctx = ctx
+func (p *Posts) Setup(service *service.Service) {
+	p.Service = service
 
 	// configure router
-	PostsRouter := p.ctx.Echo.Group("/api/v2/posts")
+	PostsRouter := p.Echo.Group("/api/v2/posts")
 
 	// auth middleware
 	// TODO: only owners can remove and update posts

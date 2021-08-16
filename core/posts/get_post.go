@@ -5,7 +5,7 @@ import (
 
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -13,11 +13,27 @@ import (
 type GetPostHandlerResponseBody struct {
 	Post    *models.Post `json:"post" xml:"posts"`
 	Message string       `json:"message" xml:"message"`
-}
+} // @name GetPostResponse
 
-// Gets post by provided id from database, returns posts
+// GetPostHandler godoc
+//
+// @id				GetPost
+// @Summary 		Gets post record.
+// @Description 	Gets post record from database using provided id.
+//
+// @Tags			Posts
+//
+// @Produce json
+// @Produce xml
+//
+// @Success 200 	{object} GetPostHandlerResponseBody
+// @Failure 400,404 {object} GetPostHandlerResponseBody
+// @Failure 500 	{object} GetPostHandlerResponseBody
+// @Failure default {object} GetPostHandlerResponseBody
+//
+// @Router /posts/{id} [GET]
 func (p *Posts) GetPostHandler(c echo.Context) error {
-	logger := p.ctx.Logger.Named("GetPostHandler")
+	logger := p.Logger.Named("GetPostHandler")
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -38,7 +54,7 @@ func (p *Posts) GetPostHandler(c echo.Context) error {
 	// retreive post from database
 	logger.Infow("getting post from database")
 	var post models.Post
-	err = p.ctx.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: postId}}).First(&post).Error
+	err = p.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: postId}}).First(&post).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)

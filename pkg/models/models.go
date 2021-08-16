@@ -14,7 +14,7 @@ type Base struct {
 	CreatedAt time.Time      `json:"-" xml:"-" gorm:"column:created_at;index"`
 	UpdatedAt time.Time      `json:"-" xml:"-" gorm:"column:updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" xml:"-"  gorm:"column:deleted_at;index"`
-}
+} // @name Base
 
 // Represent business model of User
 type User struct {
@@ -26,7 +26,7 @@ type User struct {
 	UserRole    UserRole `json:"userRole" xml:"userrole" gorm:"column:user_role;not null"`
 	PhoneNumber string   `json:"phoneNumber" xml:"phonenumber" gorm:"column:phone_number;index"`
 	AvatarURL   string   `json:"avatarUrl" xml:"avatarurl" gorm:"column:avatar_url;"`
-}
+} // @name User
 
 // Represent business model of Post
 type Post struct {
@@ -37,7 +37,7 @@ type Post struct {
 	Body   string    `json:"body" xml:"body" gorm:"column:body;not null"`
 
 	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
-}
+} // @name Post
 
 // Represent business model for Comment
 type Comment struct {
@@ -51,7 +51,7 @@ type Comment struct {
 
 	Post Post `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PostID"`
 	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
-}
+} // @name Comment
 
 func (b *Base) BeforeCreate(tx *gorm.DB) (err error) {
 	b.ID = uuid.New()
