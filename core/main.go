@@ -22,8 +22,7 @@ func (m *Monolith) Setup() {
 		Echo:  true,
 	})
 
-	// default port '8080' || export GOREST_PORT='8080'
-	// or manually m.Server.Addr = ":3000"
+	// default port '8080' || export GOREST_PORT='8080' || m.Server.Addr = ":3000"
 
 	// automigrate models
 	m.Logger.Info("automigrating models")
