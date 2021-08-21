@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Tamplier2911/gorest/core/auth"
 	"github.com/Tamplier2911/gorest/core/comments"
 	"github.com/Tamplier2911/gorest/core/posts"
 	v1_comments "github.com/Tamplier2911/gorest/core/v1_comments"
@@ -41,12 +42,18 @@ func (m *Monolith) Setup() {
 	// /swagger/index.html
 	m.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	// /api/v2/auth
+	auth := auth.Auth{}
+	auth.Setup(&m.Service)
+
 	// /api/v2/posts
 	posts := posts.Posts{}
 	posts.Setup(&m.Service)
+
 	// /api/v2/comments
 	comments := comments.Comments{}
 	comments.Setup(&m.Service)
+
 }
 
 // @title Go REST API example

@@ -10,7 +10,6 @@ type Comments struct {
 	*service.Service
 }
 
-// @BasePath /api/v2/comments
 func (cm *Comments) Setup(service *service.Service) {
 	cm.Service = service
 
