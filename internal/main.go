@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/Tamplier2911/gorest/core/auth"
-	"github.com/Tamplier2911/gorest/core/comments"
-	"github.com/Tamplier2911/gorest/core/posts"
-	v1_comments "github.com/Tamplier2911/gorest/core/v1/comments"
-	v1_posts "github.com/Tamplier2911/gorest/core/v1/posts"
+	v1_comments "github.com/Tamplier2911/gorest/internal/v1/comments"
+	v1_posts "github.com/Tamplier2911/gorest/internal/v1/posts"
+	"github.com/Tamplier2911/gorest/internal/v2/auth"
+	"github.com/Tamplier2911/gorest/internal/v2/comments"
+	"github.com/Tamplier2911/gorest/internal/v2/posts"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
 
-	_ "github.com/Tamplier2911/gorest/core/docs"
+	_ "github.com/Tamplier2911/gorest/internal/docs"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 

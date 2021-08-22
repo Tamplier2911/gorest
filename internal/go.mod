@@ -1,4 +1,4 @@
-module github.com/Tamplier2911/gorest/core
+module github.com/Tamplier2911/gorest/internal
 
 go 1.16
 
