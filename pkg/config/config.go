@@ -24,6 +24,15 @@ type Config struct {
 	MySQLUser     string `mapstructure:"mysql_user"`
 	MySQLPass     string `mapstructure:"mysql_pass"`
 	MySQLDatabase string `mapstructure:"mysql_database"`
+
+	// HMAC Secret
+	HMACSecret string `mapstructure:"hmac_secret"`
+
+	// Auth
+	GoogleClientID     string `mapstructure:"google_client_id"`
+	GoogleClientSecret string `mapstructure:"google_client_secret"`
+	GoogleClientState  string `mapstructure:"google_client_state"`
+	GoogleRedirectURL  string `mapstructure:"google_redirect_url"`
 }
 
 func New() *Config {

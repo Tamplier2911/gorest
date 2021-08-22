@@ -19,10 +19,10 @@ type GetPostsHandlerResponseBody struct {
 
 // Get all posts from database, takes limit and offset query parameters, returns posts
 func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("GetPostsHandler")
+	logger := p.Logger.Named("GetPostsHandler")
 
 	// define db statement
-	stmt := p.ctx.MySQL.Model(&models.Post{})
+	stmt := p.MySQL.Model(&models.Post{})
 
 	// TODO: consider refactoring that
 

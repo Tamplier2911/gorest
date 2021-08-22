@@ -74,7 +74,7 @@ func (p *Posts) GetPostsHandler(c echo.Context) error {
 	if err != nil {
 		logger.Errorw("failed to get posts from database", "err", err)
 		return p.ResponseWriter(c, http.StatusInternalServerError, GetPostsHandlerResponseBody{
-			Message: "failed to get posts from database",
+			Message: "failed to get posts",
 		})
 	}
 	logger = logger.With("posts", posts)

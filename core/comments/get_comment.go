@@ -63,13 +63,13 @@ func (cm *Comments) GetCommentHandler(c echo.Context) error {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find comment with provided id in database", "err", err)
 			return cm.ResponseWriter(c, http.StatusNotFound, GetCommentHandlerResponseBody{
-				Message: "failed to find comment with provided id in database",
+				Message: "failed to find comment with provided id",
 			})
 		}
 
 		logger.Errorw("failed to get comment from database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, GetCommentHandlerResponseBody{
-			Message: "failed to get comment from database",
+			Message: "failed to get comment",
 		})
 	}
 	logger = logger.With("comment", comment)

@@ -20,7 +20,7 @@ type GetCommentHandlerResponseBody struct {
 
 // Gets comment by provided id from database, returns comment
 func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("GetCommentHandler")
+	logger := c.Logger.Named("GetCommentHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -49,7 +49,7 @@ func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive comment from database
 	logger.Infow("getting comment from database")
 	var comment models.Comment
-	err = c.ctx.MySQL.Model(&models.Comment{}).Where(&models.Comment{Base: models.Base{ID: uid}}).First(&comment).Error
+	err = c.MySQL.Model(&models.Comment{}).Where(&models.Comment{Base: models.Base{ID: uid}}).First(&comment).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find comment with provided id in database", "err", err)

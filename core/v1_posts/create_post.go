@@ -24,7 +24,7 @@ type CreatePostResponseBody struct {
 
 // Creates post instance and stores it in database
 func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("CreatePostHandler")
+	logger := p.Logger.Named("CreatePostHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
@@ -54,7 +54,7 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		Title:  body.Title,
 		Body:   body.Body,
 	}
-	err = p.ctx.MySQL.Model(&models.Post{}).Create(&post).Error
+	err = p.MySQL.Model(&models.Post{}).Create(&post).Error
 	if err != nil {
 		logger.Errorw("failed to save post in database", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

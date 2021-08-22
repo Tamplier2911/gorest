@@ -10,31 +10,32 @@ type Posts struct {
 	*service.Service
 }
 
-func (p *Posts) Setup(service *service.Service) {
-	p.Service = service
+func (p *Posts) Setup(s *service.Service) {
+	p.Service = s
 
 	// configure router
 	PostsRouter := p.Echo.Group("/api/v2/posts")
 
-	// auth middleware
-	// TODO: only owners can remove and update posts
-	// PostsRouter.Use()
-
 	PostsRouter.GET("", p.GetPostsHandler)
-	PostsRouter.POST("", p.CreatePostHandler)
+
+	PostsRouter.POST("", service.AuthenticationMiddleware(p.Logger, p.Config, p.CreatePostHandler))
 	PostsRouter.GET("/:id", p.GetPostHandler)
-	PostsRouter.PUT("/:id", p.UpdatePostHandler)
-	PostsRouter.DELETE("/:id", p.DeletePostHandler)
+	PostsRouter.PUT("/:id", service.AuthenticationMiddleware(p.Logger, p.Config, p.UpdatePostHandler))
+	PostsRouter.DELETE("/:id", service.AuthenticationMiddleware(p.Logger, p.Config, p.DeletePostHandler))
 }
 
 // Writes response based on accept header
 // if header has application/xml mime type as first index, write response in xml else write response in json
 func (p *Posts) ResponseWriter(c echo.Context, statusCode int, res interface{}) error {
 	// check accept header
-	accept := c.Request().Header["Accept"][0]
+	accept := c.Request().Header["Accept"]
+	if len(accept) == 0 {
+		// default response if accept header is not provided
+		return c.JSON(statusCode, res)
+	}
 
 	// based on first value in accept header write response
-	switch accept {
+	switch accept[0] {
 	case string(models.MimeTypesXML):
 		// response with xml
 		return c.XML(statusCode, res)

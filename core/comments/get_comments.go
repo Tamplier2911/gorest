@@ -98,7 +98,7 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 	}
 
 	// retreive comments from database
-	logger.Infow("getting posts from database")
+	logger.Infow("getting comments from database")
 	var total int64
 	var comments []models.Comment
 	err = stmt.Count(&total).
@@ -110,7 +110,7 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 	if err != nil {
 		logger.Errorw("failed to get comments from database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, GetCommentsHandlerResponseBody{
-			Message: "failed to get comments from database",
+			Message: "failed to get comments",
 		})
 	}
 	logger = logger.With("comments", comments)

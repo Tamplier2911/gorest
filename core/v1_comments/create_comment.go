@@ -25,7 +25,7 @@ type CreateCommentResponseBody struct {
 
 // Creates comment instance and stores it in database
 func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("CreateCommentHandler")
+	logger := c.Logger.Named("CreateCommentHandler")
 
 	// parse body data
 	logger.Infow("parsing request body")
@@ -64,7 +64,7 @@ func (c *Comments) CreateCommentHandler(w http.ResponseWriter, r *http.Request) 
 		Name:   body.Name,
 		Body:   body.Body,
 	}
-	err = c.ctx.MySQL.Model(&models.Comment{}).Create(&comment).Error
+	err = c.MySQL.Model(&models.Comment{}).Create(&comment).Error
 	if err != nil {
 		logger.Errorw("failed to save comment in database", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -3,9 +3,11 @@ package posts
 import (
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // Represent output data of DeletePostHandler
@@ -33,6 +35,10 @@ type DeletePostHandlerResponseBody struct {
 func (p *Posts) DeletePostHandler(c echo.Context) error {
 	logger := p.Logger.Named("DeletePostsHandler")
 
+	// get token from context
+	token := access.GetTokenFromContext(c)
+	logger = logger.With("token", token)
+
 	// get id from path param
 	logger.Infow("getting id from path params")
 	id := c.Param("id")
@@ -49,30 +55,55 @@ func (p *Posts) DeletePostHandler(c echo.Context) error {
 	}
 	logger = logger.With("postId", postId)
 
-	// delete post from database
-	logger.Infow("deleting post from database")
-	result := p.MySQL.Model(&models.Post{}).Delete(&models.Post{Base: models.Base{ID: postId}})
-	if result.Error != nil || result.RowsAffected == 0 {
-		if result.Error == nil {
+	// get post from database
+	var post models.Post
+	logger.Infow("getting post from database")
+	err = p.MySQL.
+		Model(&models.Post{}).
+		Where(&models.Post{Base: models.Base{ID: postId}}).
+		First(&post).
+		Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
 			return p.ResponseWriter(c, http.StatusNotFound, DeletePostHandlerResponseBody{
 				Message: "failed to find record with provided id",
 			})
 		}
+		logger.Errorw("failed to find post record in database", "err", err)
+		return p.ResponseWriter(c, http.StatusInternalServerError, DeletePostHandlerResponseBody{
+			Message: "failed to delete post",
+		})
+	}
+	logger = logger.With("post", post)
+
+	// check if user is post author
+	logger.Infow("checking if user is author a post")
+	if token.UserID != post.UserID {
+		logger.Errorw("user is not author of current post", "err", err)
+		return p.ResponseWriter(c, http.StatusForbidden, DeletePostHandlerResponseBody{
+			Message: "only author can delete post",
+		})
+	}
+
+	// delete post from database
+	logger.Infow("deleting post from database")
+	err = p.MySQL.
+		Delete(&post).
+		Error
+	if err != nil {
 		logger.Errorw("failed to delete post record from database", "err", err)
 		return p.ResponseWriter(c, http.StatusInternalServerError, DeletePostHandlerResponseBody{
-			Message: "failed to delete post from database",
+			Message: "failed to delete post",
 		})
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
 	res := DeletePostHandlerResponseBody{
-		Message: "successfully deleted post from database",
+		Message: "successfully deleted post",
 	}
 	logger = logger.With("res", res)
 
 	logger.Infow("successfully deleted post from database")
-	return p.ResponseWriter(c, http.StatusNoContent, DeletePostHandlerResponseBody{
-		Message: "successfully deleted post from database",
-	})
+	return p.ResponseWriter(c, http.StatusNoContent, res)
 }

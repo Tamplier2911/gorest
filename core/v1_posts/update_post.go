@@ -24,7 +24,7 @@ type UpdatePostResponseBody struct {
 
 // Updates post instance in database
 func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("UpdatePostHandler")
+	logger := p.Logger.Named("UpdatePostHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -63,7 +63,7 @@ func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// update post in database
 	logger.Infow("updating post in database")
-	result := p.ctx.MySQL.
+	result := p.MySQL.
 		Model(&models.Post{}).
 		Where(&models.Post{Base: models.Base{ID: uid}}).
 		Updates(&models.Post{Title: body.Title, Body: body.Body})

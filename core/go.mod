@@ -2,11 +2,14 @@ module github.com/Tamplier2911/gorest/core
 
 go 1.16
 
+replace github.com/Tamplier2911/gorest/pkg => ../pkg
+
 require (
 	github.com/Tamplier2911/gorest/pkg v0.0.0-20210815190001-755e69443498
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/labstack/echo/v4 v4.5.0
 	github.com/mailru/easyjson v0.7.7 // indirect

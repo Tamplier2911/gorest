@@ -7,14 +7,14 @@ import (
 )
 
 type Posts struct {
-	ctx *service.Service
+	*service.Service
 }
 
-func (p *Posts) Setup(ctx *service.Service) {
-	p.ctx = ctx
+func (p *Posts) Setup(s *service.Service) {
+	p.Service = s
 
 	// configure router
-	p.ctx.Router.HandleFunc("/api/v1/posts", func(w http.ResponseWriter, r *http.Request) {
+	p.Router.HandleFunc("/api/v1/posts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			p.GetPostsHandler(w, r)
@@ -25,7 +25,7 @@ func (p *Posts) Setup(ctx *service.Service) {
 		}
 	})
 
-	p.ctx.Router.HandleFunc("/api/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
+	p.Router.HandleFunc("/api/v1/posts/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			p.GetPostHandler(w, r)

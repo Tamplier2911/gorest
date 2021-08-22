@@ -1,12 +1,13 @@
 package comments
 
 import (
-	"errors"
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // Represent input data of UpdateCommentHandler
@@ -17,7 +18,8 @@ type UpdateCommentRequestBody struct {
 
 // Represent output data of UpdateCommentHandler
 type UpdateCommentResponseBody struct {
-	Message string `json:"message" xml:"message"`
+	Comment *models.Comment `json:"comment" xml:"comment"`
+	Message string          `json:"message" xml:"message"`
 } // @name UpdateCommentResponse
 
 // UpdateCommentHandler godoc
@@ -43,6 +45,10 @@ type UpdateCommentResponseBody struct {
 // @Router /comments/{id} [PUT]
 func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	logger := cm.Logger.Named("UpdateCommentHandler")
+
+	// get token from context
+	token := access.GetTokenFromContext(c)
+	logger = logger.With("token", token)
 
 	// get id from path param
 	logger.Infow("getting id from path params")
@@ -72,32 +78,57 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	}
 	logger = logger.With("body", body)
 
-	// update post in database
-	logger.Infow("updating post in database")
-	result := cm.MySQL.
+	// getting comment from database
+	var comment models.Comment
+	logger.Infow("getting comment from database")
+	err = cm.MySQL.
 		Model(&models.Comment{}).
 		Where(&models.Comment{Base: models.Base{ID: commentId}}).
-		Updates(&models.Comment{Name: body.Name, Body: body.Body})
-	if result.Error != nil || result.RowsAffected == 0 {
-		if result.Error == nil {
-			result.Error = errors.New("record not found")
+		First(&comment).
+		Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
 			return cm.ResponseWriter(c, http.StatusNotFound, UpdateCommentResponseBody{
-				Message: "failed to find comment with provided id in database",
+				Message: "failed to find record with provided id",
 			})
 		}
-		logger.Errorw("failed to update post in database", "err", err)
+		logger.Errorw("failed to find comment record in database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentResponseBody{
-			Message: "failed to update post in database",
+			Message: "failed to update comment",
+		})
+	}
+	logger = logger.With("comment", comment)
+
+	// check if user is comment author
+	logger.Infow("checking if user is author a comment")
+	if token.UserID != comment.UserID {
+		logger.Errorw("user is not author of current comment", "err", err)
+		return cm.ResponseWriter(c, http.StatusForbidden, UpdateCommentResponseBody{
+			Message: "only author can change comment content",
+		})
+	}
+
+	// update comment in database
+	logger.Infow("updating comment in database")
+	err = cm.MySQL.
+		Model(&comment).
+		Updates(&models.Comment{Name: body.Name, Body: body.Body}).
+		Error
+	if err != nil {
+		logger.Errorw("failed to update comment in database", "err", err)
+		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentResponseBody{
+			Message: "failed to update comment",
 		})
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
 	res := UpdateCommentResponseBody{
-		Message: "successfully updated post",
+		Comment: &comment,
+		Message: "successfully updated comment",
 	}
 	logger = logger.With("res", res)
 
-	logger.Debugw("successfully updated post in database")
+	logger.Debugw("successfully updated comment in database")
 	return cm.ResponseWriter(c, http.StatusOK, res)
 }

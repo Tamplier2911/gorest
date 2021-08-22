@@ -20,7 +20,7 @@ type GetPostHandlerResponseBody struct {
 
 // Gets post by provided id from database, returns posts
 func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
-	logger := p.ctx.Logger.Named("GetPostHandler")
+	logger := p.Logger.Named("GetPostHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -49,7 +49,7 @@ func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive post from database
 	logger.Infow("getting post from database")
 	var post models.Post
-	err = p.ctx.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: uid}}).First(&post).Error
+	err = p.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: uid}}).First(&post).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)

@@ -20,13 +20,25 @@ type Base struct {
 type User struct {
 	Base
 
-	Name        string   `json:"name" xml:"name" gorm:"column:name;not null"`
-	Username    string   `json:"username" xml:"username" gorm:"column:username;index;not null"`
-	Email       string   `json:"email" xml:"email" gorm:"column:email;index;not null"`
-	UserRole    UserRole `json:"userRole" xml:"userrole" gorm:"column:user_role;not null"`
-	PhoneNumber string   `json:"phoneNumber" xml:"phonenumber" gorm:"column:phone_number;index"`
-	AvatarURL   string   `json:"avatarUrl" xml:"avatarurl" gorm:"column:avatar_url;"`
+	Username  string   `json:"username" xml:"username" gorm:"column:username;index;not null"`
+	Email     string   `json:"email" xml:"email" gorm:"column:email;index;not null"`
+	UserRole  UserRole `json:"userRole" xml:"userrole" gorm:"column:user_role;not null"`
+	AvatarURL string   `json:"avatarUrl" xml:"avatarurl" gorm:"column:avatar_url;"`
+
+	GoogleUID   string `json:"-" xml:"-" gorm:"column:google_uid;index"`
+	FacebookUID string `json:"-" xml:"-" gorm:"column:facebook_uid;index"`
+	TwitterUID  string `json:"-" xml:"-" gorm:"column:twitter_uid;index"`
 } // @name User
+
+type AuthRefreshToken struct {
+	Base
+
+	UserID       uuid.UUID    `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
+	AuthProvider AuthProvider `json:"authProvider" xml:"authprovider" gorm:"column:auth_provider;not null"`
+	RefreshToken string       `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;index;not null"`
+
+	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
+} // @name AuthRefreshToken
 
 // Represent business model of Post
 type Post struct {
@@ -75,4 +87,14 @@ const (
 	UserRoleAdmin     UserRole = "admin"
 	UserRoleModerator UserRole = "moderator"
 	UserRoleUser      UserRole = "user"
+)
+
+// AuthProvider represent auth providers.
+type AuthProvider string
+
+// Auth providers.
+const (
+	AuthProviderGoogle   AuthProvider = "google"
+	AuthProviderFacebook AuthProvider = "facebook"
+	AuthProviderTwitter  AuthProvider = "twitter"
 )

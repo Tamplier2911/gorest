@@ -54,18 +54,21 @@ func (p *Posts) GetPostHandler(c echo.Context) error {
 	// retreive post from database
 	logger.Infow("getting post from database")
 	var post models.Post
-	err = p.MySQL.Model(&models.Post{}).Where(&models.Post{Base: models.Base{ID: postId}}).First(&post).Error
+	err = p.MySQL.Model(&models.Post{}).
+		Where(&models.Post{Base: models.Base{ID: postId}}).
+		First(&post).
+		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find post with provided id in database", "err", err)
 			return p.ResponseWriter(c, http.StatusNotFound, GetPostHandlerResponseBody{
-				Message: "failed to find post with provided id in database",
+				Message: "failed to find post with provided id",
 			})
 		}
 
 		logger.Errorw("failed to get posts from database", "err", err)
 		return p.ResponseWriter(c, http.StatusInternalServerError, GetPostHandlerResponseBody{
-			Message: "failed to get posts from database",
+			Message: "failed to get posts by provided id",
 		})
 	}
 	logger = logger.With("post", post)

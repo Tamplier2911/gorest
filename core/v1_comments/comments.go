@@ -7,14 +7,14 @@ import (
 )
 
 type Comments struct {
-	ctx *service.Service
+	*service.Service
 }
 
-func (c *Comments) Setup(ctx *service.Service) {
-	c.ctx = ctx
+func (c *Comments) Setup(s *service.Service) {
+	c.Service = s
 
 	// configure router
-	c.ctx.Router.HandleFunc("/api/v1/comments", func(w http.ResponseWriter, r *http.Request) {
+	c.Router.HandleFunc("/api/v1/comments", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			c.GetCommentsHandler(w, r)
@@ -25,7 +25,7 @@ func (c *Comments) Setup(ctx *service.Service) {
 		}
 	})
 
-	c.ctx.Router.HandleFunc("/api/v1/comments/", func(w http.ResponseWriter, r *http.Request) {
+	c.Router.HandleFunc("/api/v1/comments/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			c.GetCommentHandler(w, r)

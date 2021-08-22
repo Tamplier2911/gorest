@@ -24,7 +24,7 @@ type UpdateCommentResponseBody struct {
 
 // Updates post instance in database
 func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("UpdateCommentHandler")
+	logger := c.Logger.Named("UpdateCommentHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -63,7 +63,7 @@ func (c *Comments) UpdateCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	// update post in database
 	logger.Infow("updating post in database")
-	result := c.ctx.MySQL.
+	result := c.MySQL.
 		Model(&models.Comment{}).
 		Where(&models.Comment{Base: models.Base{ID: uid}}).
 		Updates(&models.Comment{Name: body.Name, Body: body.Body})

@@ -19,10 +19,10 @@ type GetCommentsHandlerResponseBody struct {
 
 // Get all comments from database, takes limit and offset query parameters, returns comments
 func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("GetCommentsHandler")
+	logger := c.Logger.Named("GetCommentsHandler")
 
 	// define db statement
-	stmt := c.ctx.MySQL.Model(&models.Comment{})
+	stmt := c.MySQL.Model(&models.Comment{})
 
 	// TODO: consider refactoring that
 

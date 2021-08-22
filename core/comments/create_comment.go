@@ -3,6 +3,7 @@ package comments
 import (
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -11,7 +12,6 @@ import (
 // Represent input data of CreateCommentHandler
 type CreateCommentRequestBody struct {
 	PostID string `json:"postId" form:"postId" binding:"required"`
-	UserID string `json:"userId" form:"userId" binding:"required"`
 	Name   string `json:"name" form:"name" binding:"required"`
 	Body   string `json:"body" form:"body" binding:"required"`
 } // @name CreateCommentRequest
@@ -46,6 +46,10 @@ type CreateCommentResponseBody struct {
 func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 	logger := cm.Logger.Named("CreateCommentHandler")
 
+	// get token from context
+	token := access.GetTokenFromContext(c)
+	logger = logger.With("token", token)
+
 	// parse body data
 	logger.Infow("parsing request body")
 	var body CreateCommentRequestBody
@@ -69,29 +73,22 @@ func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 	}
 	logger = logger.With("postUuid", postUuid)
 
-	// TODO: consider getting user id from auth middleware in future
-	userUuid, err := uuid.Parse(body.UserID)
-	if err != nil {
-		logger.Errorw("failed to parse uuids from body", "err", err)
-		return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentResponseBody{
-			Message: "failed to parse uuids from body",
-		})
-	}
-	logger = logger.With("userUuid", userUuid)
-
 	// save instance of comment in database
 	logger.Infow("saving comment to database")
 	comment := models.Comment{
-		UserID: userUuid,
+		UserID: token.UserID,
 		PostID: postUuid,
 		Name:   body.Name,
 		Body:   body.Body,
 	}
-	err = cm.MySQL.Model(&models.Comment{}).Create(&comment).Error
+	err = cm.MySQL.
+		Model(&models.Comment{}).
+		Create(&comment).
+		Error
 	if err != nil {
 		logger.Errorw("failed to save comment in database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, CreateCommentResponseBody{
-			Message: "failed to save comment in database",
+			Message: "failed to save comment",
 		})
 	}
 

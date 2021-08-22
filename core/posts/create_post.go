@@ -3,16 +3,15 @@ package posts
 import (
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 // Represent input data of CreatePostHandler
 type CreatePostRequestBody struct {
-	UserID string `json:"userId" form:"userId" binding:"required"`
-	Title  string `json:"title" form:"title" binding:"required"`
-	Body   string `json:"body" form:"body" binding:"required"`
+	Title string `json:"title" form:"title" binding:"required"`
+	Body  string `json:"body" form:"body" binding:"required"`
 } // @name CreatePostRequest
 
 // Represent output data of CreatePostHandler
@@ -45,6 +44,10 @@ type CreatePostResponseBody struct {
 func (p *Posts) CreatePostHandler(c echo.Context) error {
 	logger := p.Logger.Named("CreatePostHandler")
 
+	// get token from context
+	token := access.GetTokenFromContext(c)
+	logger = logger.With("token", token)
+
 	// parse body data
 	logger.Infow("parsing request body")
 	var body CreatePostRequestBody
@@ -57,21 +60,10 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 	}
 	logger = logger.With("body", body)
 
-	// parse uuid id
-	logger.Infow("parsing uuid from body")
-	userId, err := uuid.Parse(body.UserID)
-	if err != nil {
-		logger.Errorw("failed to parse uuid from body", "err", err)
-		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostResponseBody{
-			Message: "failed to parse request uuid",
-		})
-	}
-	logger = logger.With("userId", userId)
-
 	// save instance of post in database
 	logger.Infow("saving post to database")
 	post := models.Post{
-		UserID: userId,
+		UserID: token.UserID,
 		Title:  body.Title,
 		Body:   body.Body,
 	}

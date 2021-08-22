@@ -6,14 +6,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
+	"github.com/Tamplier2911/gorest/pkg/models"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // Represents output body of GoogleCallbackHandler
 type GoogleCallbackHandlerResponseBody struct {
-	User    *GoogleUserData `json:"user" xml:"user"`
-	Message string          `json:"message" xml:"message"`
+	Token   *string `json:"token" xml:"token"`
+	Message string  `json:"message" xml:"message"`
 } // @GoogleCallbackResponse
 
 // Represents user object returned from google resource server
@@ -113,71 +118,82 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 
 	logger.Infow("successfully authorized with google")
 
-	// TODO: set all require environment variables and middlewares to pkg in separate PR
+	// get user from database
+	logger.Infow("getting user from database")
+	var user models.User
+	err = a.MySQL.
+		Model(&models.User{}).
+		Where(&models.User{Email: gu.Email, GoogleUID: gu.ID}).
+		First(&user).
+		Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		logger.Errorw("failed to find user in database", "err", err)
+		return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+			Message: "failed to get user form database",
+		})
+	}
 
-	/*
-		// get user from database
-		logger.Infow("getting user from database")
-		var user models.User
-		err = a.MySQL.
-			Model(&models.User{}).
-			Where(&models.User{Email: gu.Email, GoogleUID: gu.ID}).
-			First(&user).
-			Error
+	// create new user record if user record was not found
+	if err == gorm.ErrRecordNotFound {
+		logger.Infow("could not find user with this google uid, creating new user record")
+		// create user record in database
+		newUser := models.User{
+			Email:     gu.Email,
+			AvatarURL: gu.Picture,
+			GoogleUID: gu.ID,
+			UserRole:  models.UserRoleUser,
+		}
+		err := a.MySQL.Create(&newUser).Error
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				logger.Infow("could not find user with this uid, creating new user record")
-				// create user record in database
-				newUser := models.User{
-					Email:     gu.Email,
-					AvatarURL: gu.Picture,
-					GoogleUID: gu.ID,
-				}
-				err := a.MySQL.Create(&newUser)
-				if err != nil {
-					logger.Errorw("failed to create new user in database", "err", err)
-					return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
-						Message: fmt.Sprintf("failed to register new user"),
-					})
-				}
-				// get user to outer scope
-				user = newUser
-
-				// create refresh token record in order we want to request resource api when user is offline
-				if token.RefreshToken != "" {
-					refreshToken := models.AuthRefreshToken{
-						UserID:       newUser.ID,
-						AuthProvider: models.AuthProviderGoogle,
-						RefreshToken: token.RefreshToken,
-					}
-					err := a.MySQL.Create(&refreshToken)
-					if err != nil {
-						logger.Errorw("failed to create new refresh token in database", "err", err)
-						return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
-							Message: fmt.Sprintf("failed to register new user"),
-						})
-					}
-				}
-			}
-			logger.Errorw("failed to find user in database", "err", err)
+			logger.Errorw("failed to create new user in database", "err", err)
 			return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
-				Message: fmt.Sprintf("failed to get user form database"),
+				Message: "failed to register new user",
 			})
 		}
+		// get newly created user to outer scope
+		user = newUser
 
-	*/
+		// create refresh token record in order if we want to request resource api when user is offline
+		if token.RefreshToken != "" {
+			logger.Infow("saving refresh token to database")
+			refreshToken := models.AuthRefreshToken{
+				UserID:       newUser.ID,
+				AuthProvider: models.AuthProviderGoogle,
+				RefreshToken: token.RefreshToken,
+			}
+			err := a.MySQL.Create(&refreshToken).Error
+			if err != nil {
+				logger.Errorw("failed to create new refresh token in database", "err", err)
+				return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+					Message: "failed to register new user",
+				})
+			}
+		}
+	}
 
-	// TODO: sign token
+	// sign jwt token
+	logger.Infow("encoding jwt token")
+	jwt, err := access.EncodeToken(&access.Token{
+		UserID:   user.ID,
+		UserRole: user.UserRole,
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    "gorest-api",
+			IssuedAt:  time.Now().Unix(),
+			NotBefore: time.Now().Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 14).Unix(),
+		},
+	}, a.Config.HMACSecret)
+	if err != nil {
+		logger.Errorw("failed to sign jwt token", "err", err)
+		return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+			Message: "failed to sign jwt token",
+		})
+	}
+	logger = logger.With("jwt token", jwt)
 
-	// TODO: respond with a token
-
-	// TODO: once finalized this tasks, implement twitter and facebook oauth as well
-
-	// TODO: be happy
-
-	// return c.JSON(http.StatusOK, CallbackResponseBody{
-	// 	User:    &user,
-	// 	Message: "success",
-	// })
-	return c.Redirect(http.StatusTemporaryRedirect, "http://127.0.0.1:8000/api/v2/posts")
+	logger.Infow("successfully logged in")
+	return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+		Token:   &jwt,
+		Message: "successfully logged in",
+	})
 }

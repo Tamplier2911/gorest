@@ -3,9 +3,11 @@ package comments
 import (
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // Represent output data of DeleteCommentHandler
@@ -33,6 +35,10 @@ type DeleteCommentHandlerResponseBody struct {
 func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 	logger := cm.Logger.Named("DeleteCommentHandler")
 
+	// get token from context
+	token := access.GetTokenFromContext(c)
+	logger = logger.With("token", token)
+
 	// get id from path param
 	logger.Infow("getting id from path params")
 	id := c.Param("id")
@@ -49,25 +55,50 @@ func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 	}
 	logger = logger.With("commentId", commentId)
 
-	// delete comment from database
-	logger.Infow("deleting comment from database")
-	result := cm.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: commentId}})
-	if result.Error != nil || result.RowsAffected == 0 {
-		if result.Error == nil {
+	// getting comment from database
+	var comment models.Comment
+	logger.Infow("getting comment from database")
+	err = cm.MySQL.
+		Model(&models.Comment{}).
+		Where(&models.Comment{Base: models.Base{ID: commentId}}).
+		First(&comment).
+		Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
 			return cm.ResponseWriter(c, http.StatusNotFound, DeleteCommentHandlerResponseBody{
-				Message: "failed to find comment with provided id in database",
+				Message: "failed to find record with provided id",
 			})
 		}
+		logger.Errorw("failed to find comment record in database", "err", err)
+		return cm.ResponseWriter(c, http.StatusInternalServerError, DeleteCommentHandlerResponseBody{
+			Message: "failed to update comment",
+		})
+	}
+	logger = logger.With("comment", comment)
+
+	// check if user is comment author
+	logger.Infow("checking if user is author a comment")
+	if token.UserID != comment.UserID {
+		logger.Errorw("user is not author of current comment", "err", err)
+		return cm.ResponseWriter(c, http.StatusForbidden, DeleteCommentHandlerResponseBody{
+			Message: "only author can change comment content",
+		})
+	}
+
+	// delete comment from database
+	logger.Infow("deleting comment from database")
+	result := cm.MySQL.Delete(&comment)
+	if result.Error != nil || result.RowsAffected == 0 {
 		logger.Errorw("failed to delete comment with provided id from database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, DeleteCommentHandlerResponseBody{
-			Message: "failed to delete comment with provided id from database",
+			Message: "failed to delete comment",
 		})
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
 	res := DeleteCommentHandlerResponseBody{
-		Message: "successfully deleted comment from database",
+		Message: "successfully deleted comment",
 	}
 	logger = logger.With("res", res)
 

@@ -18,7 +18,7 @@ type DeleteCommentHandlerResponseBody struct {
 
 // Deletes comment by provided id from database
 func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
-	logger := c.ctx.Logger.Named("DeleteCommentHandler")
+	logger := c.Logger.Named("DeleteCommentHandler")
 
 	// TODO: consider abstracting this to a middleware
 
@@ -46,7 +46,7 @@ func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	// delete comment from database
 	logger.Infow("deleting comment from database")
-	result := c.ctx.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: uid}})
+	result := c.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: uid}})
 	if result.Error != nil || result.RowsAffected == 0 {
 		if result.Error == nil {
 			result.Error = errors.New("record not found")
