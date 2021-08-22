@@ -4,8 +4,8 @@ import (
 	"github.com/Tamplier2911/gorest/core/auth"
 	"github.com/Tamplier2911/gorest/core/comments"
 	"github.com/Tamplier2911/gorest/core/posts"
-	v1_comments "github.com/Tamplier2911/gorest/core/v1_comments"
-	v1_posts "github.com/Tamplier2911/gorest/core/v1_posts"
+	v1_comments "github.com/Tamplier2911/gorest/core/v1/comments"
+	v1_posts "github.com/Tamplier2911/gorest/core/v1/posts"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/Tamplier2911/gorest/pkg/service"
 
