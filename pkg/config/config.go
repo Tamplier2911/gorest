@@ -33,6 +33,11 @@ type Config struct {
 	GoogleClientSecret string `mapstructure:"google_client_secret"`
 	GoogleClientState  string `mapstructure:"google_client_state"`
 	GoogleRedirectURL  string `mapstructure:"google_redirect_url"`
+
+	FacebookClientID     string `mapstructure:"facebook_client_id"`
+	FacebookClientSecret string `mapstructure:"facebook_client_secret"`
+	FacebookClientState  string `mapstructure:"facebook_client_state"`
+	FacebookRedirectURL  string `mapstructure:"facebook_redirect_url"`
 }
 
 func New() *Config {

@@ -15,24 +15,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// Represents output body of GoogleCallbackHandler
-type GoogleCallbackHandlerResponseBody struct {
+// Represents output body of FacebookCallbackHandler
+type FacebookCallbackHandlerResponseBody struct {
 	Token   *string `json:"token" xml:"token"`
 	Message string  `json:"message" xml:"message"`
-} // @GoogleCallbackResponse
+} // @FacebookCallbackResponse
 
-// Represents user object returned from google resource server
-type GoogleUserData struct {
-	ID            string `json:"id" xml:"id"`
-	Email         string `json:"email" xml:"email"`
-	EmailVerified bool   `json:"verified_email" xml:"verified_email"`
-	Picture       string `json:"picture" xml:"picture"`
-} // @name GoogleUserData
+// Represents user object returned from facebook resource server
+type FacebookUserData struct {
+	ID    string `json:"id" xml:"id"`
+	Email string `json:"email" xml:"email"`
+	Name  string `json:"name" xml:"name"`
+} // @name FacebookUserData
 
-// GoogleCallbackHandler godoc
+// FacebookCallbackHandler godoc
 //
-// @id				GoogleCallback
-// @Summary 		Callback triggered once user respond to google authorization popup.
+// @id				FacebookCallback
+// @Summary 		Callback triggered once user respond to facebook authorization popup.
 // @Description 	Verifies code and state, exchanges code with authorization token,
 //					requests resource server for user personal information, stores users personal
 //					data in database, signs JWT and responds with signed JWT token.
@@ -45,14 +44,15 @@ type GoogleUserData struct {
 // @Param code query string true "Parameter for code grant"
 // @Param state query string true "Parameter for state"
 //
-// @Success 200 	{object} GoogleCallbackHandlerResponseBody
-// @Failure 400,401 {object} GoogleCallbackHandlerResponseBody
-// @Failure 500 	{object} GoogleCallbackHandlerResponseBody
-// @Failure default {object} GoogleCallbackHandlerResponseBody
+// @Success 200 	{object} FacebookCallbackHandlerResponseBody
+// @Failure 400,401 {object} FacebookCallbackHandlerResponseBody
+// @Failure 500 	{object} FacebookCallbackHandlerResponseBody
+// @Failure default {object} FacebookCallbackHandlerResponseBody
 //
-// @Router /auth/google/callback [GET]
-func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
-	logger := a.Logger.Named("GoogleCallbackHandler")
+// @Router /auth/facebook/callback [GET]
+func (a *Auth) FacebookCallbackHandler(c echo.Context) error {
+
+	logger := a.Logger.Named("FacebookCallbackHandler")
 
 	// get state from query
 	state := c.QueryParam("state")
@@ -64,19 +64,19 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 
 	// check state
 	logger.Infow("checking state")
-	if state != a.Config.GoogleClientState {
+	if state != a.Config.FacebookClientState {
 		logger.Errorw("invalid state", "state", state)
-		return a.ResponseWriter(c, http.StatusUnauthorized, GoogleCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusUnauthorized, FacebookCallbackHandlerResponseBody{
 			Message: "invalid auth state",
 		})
 	}
 
 	// exchange authorization grant with token
 	logger.Infow("exchanging token")
-	token, err := a.GoogleOAuthConfig.Exchange(context.TODO(), code)
+	token, err := a.FacebookOauthConfig.Exchange(context.TODO(), code)
 	if err != nil {
 		logger.Errorw("failed to exchange token", "err", err)
-		return a.ResponseWriter(c, http.StatusUnauthorized, GoogleCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusUnauthorized, FacebookCallbackHandlerResponseBody{
 			Message: fmt.Sprintf("code exchange failed: %s", err.Error()),
 		})
 	}
@@ -84,10 +84,10 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 
 	// access resource server using auth token
 	logger.Infow("getting user info")
-	res, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+	res, err := http.Get("https://graph.facebook.com/me?fields=id,name,email&access_token=" + token.AccessToken)
 	if err != nil {
 		logger.Errorw("failed to get user info", "err", err)
-		return a.ResponseWriter(c, http.StatusUnauthorized, GoogleCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusUnauthorized, FacebookCallbackHandlerResponseBody{
 			Message: fmt.Sprintf("failed getting user info: %s", err.Error()),
 		})
 	}
@@ -98,59 +98,59 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 	rd, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		logger.Errorw("failed to parse uer info", "err", err)
-		return a.ResponseWriter(c, http.StatusUnauthorized, GoogleCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusUnauthorized, FacebookCallbackHandlerResponseBody{
 			Message: fmt.Sprintf("failed reading response body: %s", err.Error()),
 		})
 	}
 	logger = logger.With("resourceData", rd)
 
-	// unmarshal google user into a struct
+	// unmarshal facebook user into a struct
 	logger.Infow("unmarshal user data")
-	var gu GoogleUserData
-	err = json.Unmarshal(rd, &gu)
+	var fu FacebookUserData
+	err = json.Unmarshal(rd, &fu)
 	if err != nil {
-		logger.Errorw("failed to parse google user info", "err", err)
-		return a.ResponseWriter(c, http.StatusUnauthorized, GoogleCallbackHandlerResponseBody{
+		logger.Errorw("failed to parse facebook user info", "err", err)
+		return a.ResponseWriter(c, http.StatusUnauthorized, FacebookCallbackHandlerResponseBody{
 			Message: fmt.Sprintf("failed reading response body: %s", err.Error()),
 		})
 	}
-	logger = logger.With("google user", gu)
+	logger = logger.With("facebook user", fu)
 
-	if gu.Email == "" {
+	if fu.Email == "" {
 		logger.Errorw("user does not have email address")
 		return a.ResponseWriter(c, http.StatusForbidden, GoogleCallbackHandlerResponseBody{
 			Message: "email address is required",
 		})
 	}
 
-	logger.Infow("successfully authorized with google")
+	logger.Infow("successfully logged with facebook")
 
 	// get user from database
 	logger.Infow("getting user from database")
 	var user models.User
 	err = a.MySQL.
 		Model(&models.User{}).
-		Where(&models.User{Email: gu.Email}).
+		Where(&models.User{Email: fu.Email}).
 		First(&user).
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Errorw("failed to find user in database", "err", err)
-		return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 			Message: "failed to login user",
 		})
 	}
 
 	// if user was found
 	if err == nil {
-		// ensure that it has google id attached
-		if user.GoogleUID == "" {
-			logger.Infow("updating users google uid")
+		// ensure that it has facebook id attached
+		if user.FacebookUID == "" {
+			logger.Infow("updating users facebook uid")
 			err = a.MySQL.
 				Model(&user).
-				Updates(&models.User{GoogleUID: gu.ID, AvatarURL: gu.Picture}).
+				Updates(&models.User{FacebookUID: fu.ID, Username: fu.Name}).
 				Error
 			if err != nil {
-				logger.Errorw("failed to update user in database", "err", err)
+				logger.Errorw("failed to update user database", "err", err)
 				return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 					Message: "failed to login user",
 				})
@@ -158,20 +158,20 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 		}
 	}
 
-	// create new user record if user record was not found
+	// if user not found create new user record if user record
 	if err == gorm.ErrRecordNotFound {
-		logger.Infow("could not find user with this google uid, creating new user record")
+		logger.Infow("could not find user with this facebook uid, creating new user record")
 		// create user record in database
 		newUser := models.User{
-			Email:     gu.Email,
-			AvatarURL: gu.Picture,
-			GoogleUID: gu.ID,
-			UserRole:  models.UserRoleUser,
+			Email:       fu.Email,
+			FacebookUID: fu.ID,
+			Username:    fu.Name,
+			UserRole:    models.UserRoleUser,
 		}
 		err := a.MySQL.Create(&newUser).Error
 		if err != nil {
 			logger.Errorw("failed to create new user in database", "err", err)
-			return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+			return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 				Message: "failed to register new user",
 			})
 		}
@@ -185,36 +185,54 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 	var refreshToken models.AuthRefreshToken
 	err = a.MySQL.
 		Model(&models.AuthRefreshToken{}).
-		Where(&models.AuthRefreshToken{UserID: user.ID, AuthProvider: models.AuthProviderGoogle}).
+		Where(&models.AuthRefreshToken{UserID: user.ID, AuthProvider: models.AuthProviderFacebook}).
 		First(&refreshToken).
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logger.Errorw("failed to find refresh token in database", "err", err)
+		logger.Errorw("failed to find auth token in database", "err", err)
 		return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 			Message: "failed to login user",
 		})
 	}
 
-	// if refresh token not found create refresh token
+	// if refresh token found update short living refresh token
+	if err == nil {
+		// TODO: consider encrypt token before updating
+		// ensure to update short living token in database
+		logger.Infow("updating short living token in database")
+		err = a.MySQL.
+			Model(&refreshToken).
+			Updates(&models.AuthRefreshToken{RefreshToken: token.AccessToken}).
+			Error
+		if err != nil {
+			logger.Errorw("failed to update token in database", "err", err)
+			return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
+				Message: "failed to login user",
+			})
+		}
+	}
+
+	// if refresh token not found create new refresh token
 	if err == gorm.ErrRecordNotFound {
-		// TODO: consider encrypting token before saving
-		// create refresh token record in order if we want to request resource api when user is offline
-		if token.RefreshToken != "" {
-			logger.Infow("saving refresh token to database")
+		// TODO: consider encrypt token before saving
+		// facebook does not support refresh token, we use short living token, to get long living token
+		if token.AccessToken != "" {
+			logger.Infow("saving short living token to database")
 			refreshToken := models.AuthRefreshToken{
 				UserID:       user.ID,
-				AuthProvider: models.AuthProviderGoogle,
-				RefreshToken: token.RefreshToken,
+				AuthProvider: models.AuthProviderFacebook,
+				RefreshToken: token.AccessToken,
 			}
 			err := a.MySQL.Create(&refreshToken).Error
 			if err != nil {
 				logger.Errorw("failed to create new refresh token in database", "err", err)
-				return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+				return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 					Message: "failed to login user",
 				})
 			}
 		}
 	}
+	logger = logger.With("refreshToken", refreshToken)
 
 	// sign jwt token
 	logger.Infow("encoding jwt token")
@@ -230,14 +248,14 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 	}, a.Config.HMACSecret)
 	if err != nil {
 		logger.Errorw("failed to sign jwt token", "err", err)
-		return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 			Message: "failed to login user",
 		})
 	}
 	logger = logger.With("jwt token", jwt)
 
 	logger.Infow("successfully logged in")
-	return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+	return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 		Token:   &jwt,
 		Message: "successfully logged in",
 	})

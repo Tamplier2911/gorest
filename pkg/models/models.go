@@ -35,7 +35,7 @@ type AuthRefreshToken struct {
 
 	UserID       uuid.UUID    `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
 	AuthProvider AuthProvider `json:"authProvider" xml:"authprovider" gorm:"column:auth_provider;not null"`
-	RefreshToken string       `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;index;not null"`
+	RefreshToken string       `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:char(255);index;not null"`
 
 	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
 } // @name AuthRefreshToken

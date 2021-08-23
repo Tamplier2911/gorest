@@ -5,12 +5,14 @@ import (
 	"github.com/Tamplier2911/gorest/pkg/service"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
 )
 
 type Auth struct {
 	*service.Service
-	GoogleOAuthConfig *oauth2.Config
+	GoogleOAuthConfig   *oauth2.Config
+	FacebookOauthConfig *oauth2.Config
 }
 
 func (a *Auth) Setup(s *service.Service) {
@@ -30,9 +32,18 @@ func (a *Auth) Setup(s *service.Service) {
 	GoogleAuthRouter.GET("/login", a.GoogleLoginHandler)
 	GoogleAuthRouter.GET("/callback", a.GoogleCallbackHandler)
 
-	// FacebookAuthRouter := a.Echo.Group("/api/v2/auth/facebook")
-	// FacebookAuthRouter.GET("/login", a.FacebookLoginHandler)
-	// FacebookAuthRouter.GET("/callback", a.FacebookCallbackHandler)
+	// setup facebook oauth config
+	a.FacebookOauthConfig = &oauth2.Config{
+		ClientID:     a.Config.FacebookClientID,
+		ClientSecret: a.Config.FacebookClientSecret,
+		RedirectURL:  a.Config.FacebookRedirectURL,
+		Scopes:       []string{"public_profile", "email"},
+		Endpoint:     facebook.Endpoint,
+	}
+
+	FacebookAuthRouter := a.Echo.Group("/api/v2/auth/facebook")
+	FacebookAuthRouter.GET("/login", a.FacebookLoginHandler)
+	FacebookAuthRouter.GET("/callback", a.FacebookCallbackHandler)
 
 	// TwitterAuthRouter := a.Echo.Group("/api/v2/auth/twitter")
 	// TwitterAuthRouter.GET("/login", a.TwitterLoginHandler)
