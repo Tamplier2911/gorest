@@ -42,6 +42,8 @@ type UpdatePostResponseBody struct {
 // @Failure 500 	{object} UpdatePostResponseBody
 // @Failure default {object} UpdatePostResponseBody
 //
+// @Security ApiKeyAuth
+//
 // @Router /posts/{id} [PUT]
 func (p *Posts) UpdatePostHandler(c echo.Context) error {
 	logger := p.Logger.Named("UpdatePostHandler")

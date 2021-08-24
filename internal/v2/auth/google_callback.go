@@ -147,11 +147,11 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 			logger.Infow("updating users google uid")
 			err = a.MySQL.
 				Model(&user).
-				Updates(&models.User{GoogleUID: gu.ID, AvatarURL: gu.Picture}).
+				Updates(&models.User{GoogleUID: gu.ID}).
 				Error
 			if err != nil {
 				logger.Errorw("failed to update user in database", "err", err)
-				return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
+				return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
 					Message: "failed to login user",
 				})
 			}
@@ -160,7 +160,7 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 
 	// create new user record if user record was not found
 	if err == gorm.ErrRecordNotFound {
-		logger.Infow("could not find user with this google uid, creating new user record")
+		logger.Infow("could not find user with this email, creating new user record")
 		// create user record in database
 		newUser := models.User{
 			Email:     gu.Email,
@@ -190,7 +190,7 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Errorw("failed to find refresh token in database", "err", err)
-		return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
+		return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
 			Message: "failed to login user",
 		})
 	}

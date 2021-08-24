@@ -27,7 +27,7 @@ type User struct {
 
 	GoogleUID   string `json:"-" xml:"-" gorm:"column:google_uid;index"`
 	FacebookUID string `json:"-" xml:"-" gorm:"column:facebook_uid;index"`
-	TwitterUID  string `json:"-" xml:"-" gorm:"column:twitter_uid;index"`
+	GithubID    string `json:"-" xml:"-" gorm:"column:github_uid;index"`
 } // @name User
 
 type AuthRefreshToken struct {
@@ -96,5 +96,5 @@ type AuthProvider string
 const (
 	AuthProviderGoogle   AuthProvider = "google"
 	AuthProviderFacebook AuthProvider = "facebook"
-	AuthProviderTwitter  AuthProvider = "twitter"
+	AuthProviderGithub   AuthProvider = "github"
 )

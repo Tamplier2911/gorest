@@ -31,6 +31,8 @@ type DeletePostHandlerResponseBody struct {
 // @Failure 500 	{object} DeletePostHandlerResponseBody
 // @Failure default {object} DeletePostHandlerResponseBody
 //
+// @Security ApiKeyAuth
+//
 // @Router /posts/{id} [DELETE]
 func (p *Posts) DeletePostHandler(c echo.Context) error {
 	logger := p.Logger.Named("DeletePostsHandler")

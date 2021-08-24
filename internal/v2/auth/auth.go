@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
+	"golang.org/x/oauth2/github"
 	"golang.org/x/oauth2/google"
 )
 
@@ -13,6 +14,7 @@ type Auth struct {
 	*service.Service
 	GoogleOAuthConfig   *oauth2.Config
 	FacebookOauthConfig *oauth2.Config
+	GithubOauthConfig   *oauth2.Config
 }
 
 func (a *Auth) Setup(s *service.Service) {
@@ -41,13 +43,25 @@ func (a *Auth) Setup(s *service.Service) {
 		Endpoint:     facebook.Endpoint,
 	}
 
+	// configure router
 	FacebookAuthRouter := a.Echo.Group("/api/v2/auth/facebook")
 	FacebookAuthRouter.GET("/login", a.FacebookLoginHandler)
 	FacebookAuthRouter.GET("/callback", a.FacebookCallbackHandler)
 
-	// TwitterAuthRouter := a.Echo.Group("/api/v2/auth/twitter")
-	// TwitterAuthRouter.GET("/login", a.TwitterLoginHandler)
-	// TwitterAuthRouter.GET("/callback", a.TwitterCallbackHandler)
+	// setup github oauth config
+	a.GithubOauthConfig = &oauth2.Config{
+		ClientID:     a.Config.GithubClientID,
+		ClientSecret: a.Config.GithubClientSecret,
+		RedirectURL:  a.Config.GithubRedirectURL,
+		Scopes:       []string{"user:email"},
+		// Scopes:   []string{"user"},
+		Endpoint: github.Endpoint,
+	}
+
+	// configure router
+	GithubAuthRouter := a.Echo.Group("/api/v2/auth/github")
+	GithubAuthRouter.GET("/login", a.GithubLoginHandler)
+	GithubAuthRouter.GET("/callback", a.GithubCallbackHandler)
 }
 
 // Writes response based on accept header

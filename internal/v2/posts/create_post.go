@@ -40,6 +40,8 @@ type CreatePostResponseBody struct {
 // @Failure 500 	{object} CreatePostResponseBody
 // @Failure default {object} CreatePostResponseBody
 //
+// @Security ApiKeyAuth
+//
 // @Router /posts [POST]
 func (p *Posts) CreatePostHandler(c echo.Context) error {
 	logger := p.Logger.Named("CreatePostHandler")

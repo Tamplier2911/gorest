@@ -10,6 +10,8 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/google/go-github v17.0.0+incompatible
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/labstack/echo/v4 v4.5.0
 	github.com/mailru/easyjson v0.7.7 // indirect

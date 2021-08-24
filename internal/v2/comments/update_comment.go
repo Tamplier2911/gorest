@@ -42,6 +42,8 @@ type UpdateCommentResponseBody struct {
 // @Failure 500 	{object} UpdateCommentResponseBody
 // @Failure default {object} UpdateCommentResponseBody
 //
+// @Security ApiKeyAuth
+//
 // @Router /comments/{id} [PUT]
 func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	logger := cm.Logger.Named("UpdateCommentHandler")

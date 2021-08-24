@@ -42,6 +42,8 @@ type CreateCommentResponseBody struct {
 // @Failure 500 	{object} CreateCommentResponseBody
 // @Failure default {object} CreateCommentResponseBody
 //
+// @Security ApiKeyAuth
+//
 // @Router /comments [POST]
 func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 	logger := cm.Logger.Named("CreateCommentHandler")

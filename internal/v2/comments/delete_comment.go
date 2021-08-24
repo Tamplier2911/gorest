@@ -31,6 +31,8 @@ type DeleteCommentHandlerResponseBody struct {
 // @Failure 500 	{object} DeleteCommentHandlerResponseBody
 // @Failure default {object} DeleteCommentHandlerResponseBody
 //
+// @Security ApiKeyAuth
+//
 // @Router /comments/{id} [DELETE]
 func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 	logger := cm.Logger.Named("DeleteCommentHandler")
