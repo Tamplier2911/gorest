@@ -24,21 +24,19 @@ type User struct {
 	Email     string   `json:"email" xml:"email" gorm:"column:email;index;not null"`
 	UserRole  UserRole `json:"userRole" xml:"userrole" gorm:"column:user_role;not null"`
 	AvatarURL string   `json:"avatarUrl" xml:"avatarurl" gorm:"column:avatar_url;"`
-
-	GoogleUID   string `json:"-" xml:"-" gorm:"column:google_uid;index"`
-	FacebookUID string `json:"-" xml:"-" gorm:"column:facebook_uid;index"`
-	GithubID    string `json:"-" xml:"-" gorm:"column:github_uid;index"`
 } // @name User
 
-type AuthRefreshToken struct {
+type AuthProvider struct {
 	Base
 
-	UserID       uuid.UUID    `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
-	AuthProvider AuthProvider `json:"authProvider" xml:"authprovider" gorm:"column:auth_provider;not null"`
-	RefreshToken string       `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:char(255);index;not null"`
+	UserID      uuid.UUID `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
+	ProviderUID string    `json:"providerUid" xml:"providerUid" gorm:"column:provider_uid;index;not null"`
+
+	AuthProviderType AuthProviderType `json:"authProviderType" xml:"authproviderType" gorm:"column:auth_provider_type;not null"`
+	RefreshToken     string           `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:char(255);index;not null"`
 
 	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
-} // @name AuthRefreshToken
+} // @name AuthProvider
 
 // Represent business model of Post
 type Post struct {
@@ -89,12 +87,12 @@ const (
 	UserRoleUser      UserRole = "user"
 )
 
-// AuthProvider represent auth providers.
-type AuthProvider string
+// AuthProviderType represent auth providers.
+type AuthProviderType string
 
 // Auth providers.
 const (
-	AuthProviderGoogle   AuthProvider = "google"
-	AuthProviderFacebook AuthProvider = "facebook"
-	AuthProviderGithub   AuthProvider = "github"
+	AuthProviderTypeGoogle   AuthProviderType = "google"
+	AuthProviderTypeFacebook AuthProviderType = "facebook"
+	AuthProviderTypeGithub   AuthProviderType = "github"
 )

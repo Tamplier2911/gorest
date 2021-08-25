@@ -31,7 +31,7 @@ func (m *Monolith) Setup() {
 		&models.Post{},
 		&models.Comment{},
 		&models.User{},
-		&models.AuthRefreshToken{},
+		&models.AuthProvider{},
 	)
 	if err != nil {
 		m.Logger.Fatalw("failed to automigrate models", "err", err)

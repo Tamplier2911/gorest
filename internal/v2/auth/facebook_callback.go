@@ -140,53 +140,36 @@ func (a *Auth) FacebookCallbackHandler(c echo.Context) error {
 		})
 	}
 
-	// if user was found
-	if err == nil {
-		// ensure that it has facebook id attached
-		if user.FacebookUID == "" {
-			logger.Infow("updating users facebook uid")
-			err = a.MySQL.
-				Model(&user).
-				Updates(&models.User{FacebookUID: fu.ID}).
-				Error
-			if err != nil {
-				logger.Errorw("failed to update user database", "err", err)
-				return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
-					Message: "failed to login user",
-				})
-			}
-		}
-	}
-
-	// if user not found create new user record if user record
+	// if user not found create new user record
 	if err == gorm.ErrRecordNotFound {
 		logger.Infow("could not find user with this email, creating new user record")
 		// create user record in database
-		newUser := models.User{
-			Email:       fu.Email,
-			FacebookUID: fu.ID,
-			Username:    fu.Name,
-			UserRole:    models.UserRoleUser,
+		user = models.User{
+			Email:    fu.Email,
+			Username: fu.Name,
+			UserRole: models.UserRoleUser,
 		}
-		err := a.MySQL.Create(&newUser).Error
+		err := a.MySQL.Create(&user).Error
 		if err != nil {
 			logger.Errorw("failed to create new user in database", "err", err)
 			return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 				Message: "failed to register new user",
 			})
 		}
-		// get newly created user to outer scope
-		user = newUser
 	}
 	logger = logger.With("user", user)
 
-	// get refresh token from database
-	logger.Infow("getting refresh token from database")
-	var refreshToken models.AuthRefreshToken
+	// get auth provider form database
+	logger.Infow("getting auth provider from database")
+	var authProvider models.AuthProvider
 	err = a.MySQL.
-		Model(&models.AuthRefreshToken{}).
-		Where(&models.AuthRefreshToken{UserID: user.ID, AuthProvider: models.AuthProviderFacebook}).
-		First(&refreshToken).
+		Model(&models.AuthProvider{}).
+		Where(&models.AuthProvider{
+			UserID:           user.ID,
+			ProviderUID:      fu.ID,
+			AuthProviderType: models.AuthProviderTypeFacebook,
+		}).
+		First(&authProvider).
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Errorw("failed to find auth token in database", "err", err)
@@ -195,44 +178,45 @@ func (a *Auth) FacebookCallbackHandler(c echo.Context) error {
 		})
 	}
 
-	// if refresh token found update short living refresh token
+	// if auth provider found update short living refresh token
 	if err == nil {
 		// TODO: consider encrypt token before updating
 		// ensure to update short living token in database
-		logger.Infow("updating short living token in database")
+		logger.Infow("updating auth provider token in database")
 		err = a.MySQL.
-			Model(&refreshToken).
-			Updates(&models.AuthRefreshToken{RefreshToken: token.AccessToken}).
+			Model(&authProvider).
+			Updates(&models.AuthProvider{RefreshToken: token.AccessToken}).
 			Error
 		if err != nil {
-			logger.Errorw("failed to update token in database", "err", err)
+			logger.Errorw("failed to update auth provider in database", "err", err)
 			return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 				Message: "failed to login user",
 			})
 		}
 	}
 
-	// if refresh token not found create new refresh token
+	// if auth provider not found create new auth provider
 	if err == gorm.ErrRecordNotFound {
 		// TODO: consider encrypt token before saving
 		// facebook does not support refresh token, we use short living token, to get long living token
 		if token.AccessToken != "" {
-			logger.Infow("saving short living token to database")
-			refreshToken := models.AuthRefreshToken{
-				UserID:       user.ID,
-				AuthProvider: models.AuthProviderFacebook,
-				RefreshToken: token.AccessToken,
+			logger.Infow("saving auth provider to database")
+			authProvider = models.AuthProvider{
+				UserID:           user.ID,
+				ProviderUID:      fu.ID,
+				AuthProviderType: models.AuthProviderTypeFacebook,
+				RefreshToken:     token.AccessToken,
 			}
-			err := a.MySQL.Create(&refreshToken).Error
+			err := a.MySQL.Create(&authProvider).Error
 			if err != nil {
-				logger.Errorw("failed to create new refresh token in database", "err", err)
+				logger.Errorw("failed to create new auth provider in database", "err", err)
 				return a.ResponseWriter(c, http.StatusInternalServerError, FacebookCallbackHandlerResponseBody{
 					Message: "failed to login user",
 				})
 			}
 		}
 	}
-	logger = logger.With("refreshToken", refreshToken)
+	logger = logger.With("authProvider", authProvider)
 
 	// sign jwt token
 	logger.Infow("encoding jwt token")

@@ -109,99 +109,83 @@ func (a *Auth) GithubCallbackHandler(c echo.Context) error {
 		})
 	}
 
-	// if user was found
-	if err == nil {
-		// ensure that it has github id attached
-		if user.GithubID == "" {
-			logger.Infow("updating users github uid")
-			err = a.MySQL.
-				Model(&user).
-				Updates(&models.User{GithubID: fmt.Sprintf("%d", *ghu.ID)}).
-				Error
-			if err != nil {
-				logger.Errorw("failed to update user in database", "err", err)
-				return a.ResponseWriter(c, http.StatusInternalServerError, GithubCallbackHandlerResponseBody{
-					Message: "failed to login user",
-				})
-			}
-		}
-	}
-
-	// create new user record if user record was not found
+	// if user not found create new user record
 	if err == gorm.ErrRecordNotFound {
 		logger.Infow("could not find user with this email, creating new user record")
 		// create user record in database
-		newUser := models.User{
+		user = models.User{
 			Email:     *ghu.Email,
 			Username:  *ghu.Name,
 			AvatarURL: *ghu.AvatarURL,
-			GithubID:  fmt.Sprintf("%d", *ghu.ID),
 			UserRole:  models.UserRoleUser,
 		}
-		err := a.MySQL.Create(&newUser).Error
+		err := a.MySQL.Create(&user).Error
 		if err != nil {
 			logger.Errorw("failed to create new user in database", "err", err)
 			return a.ResponseWriter(c, http.StatusInternalServerError, GithubCallbackHandlerResponseBody{
 				Message: "failed to register new user",
 			})
 		}
-		// get newly created user to outer scope
-		user = newUser
 	}
 	logger = logger.With("user", user)
 
-	// get refresh token from database
-	logger.Infow("getting refresh token from database")
-	var refreshToken models.AuthRefreshToken
+	// get auth provider from database
+	logger.Infow("getting auth provider from database")
+	var authProvider models.AuthProvider
 	err = a.MySQL.
-		Model(&models.AuthRefreshToken{}).
-		Where(&models.AuthRefreshToken{UserID: user.ID, AuthProvider: models.AuthProviderGithub}).
-		First(&refreshToken).
+		Model(&models.AuthProvider{}).
+		Where(&models.AuthProvider{
+			UserID:           user.ID,
+			ProviderUID:      fmt.Sprintf("%d", *ghu.ID),
+			AuthProviderType: models.AuthProviderTypeGithub,
+		}).
+		First(&authProvider).
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logger.Errorw("failed to find auth token in database", "err", err)
+		logger.Errorw("failed to find auth provider in database", "err", err)
 		return a.ResponseWriter(c, http.StatusInternalServerError, GithubCallbackHandlerResponseBody{
 			Message: "failed to login user",
 		})
 	}
 
-	// if refresh token found update short living refresh token
+	// if auth provider token found update short living refresh token
 	if err == nil {
 		// TODO: consider encrypt token before updating
 		// ensure to update short living token in database
-		logger.Infow("updating short living token in database")
+		logger.Infow("updating auth provider in database")
 		err = a.MySQL.
-			Model(&refreshToken).
-			Updates(&models.AuthRefreshToken{RefreshToken: token.AccessToken}).
+			Model(&authProvider).
+			Updates(&models.AuthProvider{RefreshToken: token.AccessToken}).
 			Error
 		if err != nil {
-			logger.Errorw("failed to update token in database", "err", err)
+			logger.Errorw("failed to update auth provider in database", "err", err)
 			return a.ResponseWriter(c, http.StatusInternalServerError, GithubCallbackHandlerResponseBody{
 				Message: "failed to login user",
 			})
 		}
 	}
 
-	// if refresh token not found create new refresh token
+	// if auth provider not found create new auth provider
 	if err == gorm.ErrRecordNotFound {
 		// TODO: consider encrypt token before saving
 		if token.AccessToken != "" {
-			logger.Infow("saving short living token to database")
-			refreshToken := models.AuthRefreshToken{
-				UserID:       user.ID,
-				AuthProvider: models.AuthProviderGithub,
-				RefreshToken: token.AccessToken,
+			logger.Infow("saving auth provder to database")
+			authProvider = models.AuthProvider{
+				UserID:           user.ID,
+				ProviderUID:      fmt.Sprintf("%d", *ghu.ID),
+				AuthProviderType: models.AuthProviderTypeGithub,
+				RefreshToken:     token.AccessToken,
 			}
-			err := a.MySQL.Create(&refreshToken).Error
+			err := a.MySQL.Create(&authProvider).Error
 			if err != nil {
-				logger.Errorw("failed to create new refresh token in database", "err", err)
+				logger.Errorw("failed to create new auth provider in database", "err", err)
 				return a.ResponseWriter(c, http.StatusInternalServerError, GithubCallbackHandlerResponseBody{
 					Message: "failed to login user",
 				})
 			}
 		}
 	}
-	logger = logger.With("refreshToken", refreshToken)
+	logger = logger.With("authProvider", authProvider)
 
 	// sign jwt token
 	logger.Infow("encoding jwt token")

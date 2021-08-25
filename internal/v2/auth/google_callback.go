@@ -140,80 +140,63 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 		})
 	}
 
-	// if user was found
-	if err == nil {
-		// ensure that it has google id attached
-		if user.GoogleUID == "" {
-			logger.Infow("updating users google uid")
-			err = a.MySQL.
-				Model(&user).
-				Updates(&models.User{GoogleUID: gu.ID}).
-				Error
-			if err != nil {
-				logger.Errorw("failed to update user in database", "err", err)
-				return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
-					Message: "failed to login user",
-				})
-			}
-		}
-	}
-
-	// create new user record if user record was not found
+	// if user not found create new user record
 	if err == gorm.ErrRecordNotFound {
 		logger.Infow("could not find user with this email, creating new user record")
 		// create user record in database
-		newUser := models.User{
+		user = models.User{
 			Email:     gu.Email,
 			AvatarURL: gu.Picture,
-			GoogleUID: gu.ID,
 			UserRole:  models.UserRoleUser,
 		}
-		err := a.MySQL.Create(&newUser).Error
+		err := a.MySQL.Create(&user).Error
 		if err != nil {
 			logger.Errorw("failed to create new user in database", "err", err)
 			return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
 				Message: "failed to register new user",
 			})
 		}
-		// get newly created user to outer scope
-		user = newUser
 	}
 	logger = logger.With("user", user)
 
-	// get refresh token from database
-	logger.Infow("getting refresh token from database")
-	var refreshToken models.AuthRefreshToken
+	// get auth provider from database
+	logger.Infow("getting auth provider from database")
+	var authProvider models.AuthProvider
 	err = a.MySQL.
-		Model(&models.AuthRefreshToken{}).
-		Where(&models.AuthRefreshToken{UserID: user.ID, AuthProvider: models.AuthProviderGoogle}).
-		First(&refreshToken).
+		Model(&models.AuthProvider{}).
+		Where(&models.AuthProvider{
+			UserID:           user.ID,
+			ProviderUID:      gu.ID,
+			AuthProviderType: models.AuthProviderTypeGoogle,
+		}).
+		First(&authProvider).
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logger.Errorw("failed to find refresh token in database", "err", err)
+		logger.Errorw("failed to find auth provider in database", "err", err)
 		return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
 			Message: "failed to login user",
 		})
 	}
 
-	// if refresh token not found create refresh token
+	// if auth provider not found create new auth provider
 	if err == gorm.ErrRecordNotFound {
 		// TODO: consider encrypting token before saving
-		// create refresh token record in order if we want to request resource api when user is offline
-		if token.RefreshToken != "" {
-			logger.Infow("saving refresh token to database")
-			refreshToken := models.AuthRefreshToken{
-				UserID:       user.ID,
-				AuthProvider: models.AuthProviderGoogle,
-				RefreshToken: token.RefreshToken,
-			}
-			err := a.MySQL.Create(&refreshToken).Error
-			if err != nil {
-				logger.Errorw("failed to create new refresh token in database", "err", err)
-				return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
-					Message: "failed to login user",
-				})
-			}
+		// save refresh token in order if we want to request resource api when user is offline
+		logger.Infow("saving auth provder to database")
+		authProvider := models.AuthProvider{
+			UserID:           user.ID,
+			ProviderUID:      gu.ID,
+			AuthProviderType: models.AuthProviderTypeGoogle,
+			RefreshToken:     token.RefreshToken,
 		}
+		err := a.MySQL.Create(&authProvider).Error
+		if err != nil {
+			logger.Errorw("failed to create new auth provider in database", "err", err)
+			return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+				Message: "failed to login user",
+			})
+		}
+
 	}
 
 	// sign jwt token
