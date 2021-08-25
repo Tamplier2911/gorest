@@ -1,1 +1,1 @@
-cd core && swag init --parseDependency true
+cd internal && swag init --parseDependency true
