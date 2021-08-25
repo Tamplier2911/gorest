@@ -54,8 +54,7 @@ func (a *Auth) Setup(s *service.Service) {
 		ClientSecret: a.Config.GithubClientSecret,
 		RedirectURL:  a.Config.GithubRedirectURL,
 		Scopes:       []string{"user:email"},
-		// Scopes:   []string{"user"},
-		Endpoint: github.Endpoint,
+		Endpoint:     github.Endpoint,
 	}
 
 	// configure router

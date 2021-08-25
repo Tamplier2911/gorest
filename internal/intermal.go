@@ -1,8 +1,8 @@
-package main
+package internal
 
 import (
-	v1_comments "github.com/Tamplier2911/gorest/internal/v1/comments"
-	v1_posts "github.com/Tamplier2911/gorest/internal/v1/posts"
+	v1comments "github.com/Tamplier2911/gorest/internal/v1/comments"
+	v1posts "github.com/Tamplier2911/gorest/internal/v1/posts"
 	"github.com/Tamplier2911/gorest/internal/v2/auth"
 	"github.com/Tamplier2911/gorest/internal/v2/comments"
 	"github.com/Tamplier2911/gorest/internal/v2/posts"
@@ -37,15 +37,16 @@ func (m *Monolith) Setup() {
 		m.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
-	// /api/v1/posts
-	deprecatedPosts := v1_posts.Posts{}
-	deprecatedPosts.Setup(&m.Service)
-	// /api/v1/comments
-	deprecatedComments := v1_comments.Comments{}
-	deprecatedComments.Setup(&m.Service)
-
 	// /swagger/index.html
 	m.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
+
+	// /api/v1/posts
+	v1posts := v1posts.Posts{}
+	v1posts.Setup(&m.Service)
+
+	// /api/v1/comments
+	v1comments := v1comments.Comments{}
+	v1comments.Setup(&m.Service)
 
 	// /api/v2/auth
 	auth := auth.Auth{}
@@ -58,19 +59,4 @@ func (m *Monolith) Setup() {
 	// /api/v2/comments
 	comments := comments.Comments{}
 	comments.Setup(&m.Service)
-
-}
-
-// @title Go REST API example
-// @version 2.0
-// @description This is a sample rest api realized in go language for education purposes.
-//
-// @contact.email artyom.nikolaev@syahoo.com
-//
-// @host localhost:8000
-// @BasePath /api/v2
-func main() {
-	m := Monolith{}
-	m.Setup()
-	m.Start()
 }
