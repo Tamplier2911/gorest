@@ -24,6 +24,25 @@ type Config struct {
 	MySQLUser     string `mapstructure:"mysql_user"`
 	MySQLPass     string `mapstructure:"mysql_pass"`
 	MySQLDatabase string `mapstructure:"mysql_database"`
+
+	// HMAC Secret
+	HMACSecret string `mapstructure:"hmac_secret"`
+
+	// Auth
+	GoogleClientID     string `mapstructure:"google_client_id"`
+	GoogleClientSecret string `mapstructure:"google_client_secret"`
+	GoogleClientState  string `mapstructure:"google_client_state"`
+	GoogleRedirectURL  string `mapstructure:"google_redirect_url"`
+
+	FacebookClientID     string `mapstructure:"facebook_client_id"`
+	FacebookClientSecret string `mapstructure:"facebook_client_secret"`
+	FacebookClientState  string `mapstructure:"facebook_client_state"`
+	FacebookRedirectURL  string `mapstructure:"facebook_redirect_url"`
+
+	GithubClientID     string `mapstructure:"github_client_id"`
+	GithubClientSecret string `mapstructure:"github_client_secret"`
+	GithubClientState  string `mapstructure:"github_client_state"`
+	GithubRedirectURL  string `mapstructure:"github_redirect_url"`
 }
 
 func New() *Config {

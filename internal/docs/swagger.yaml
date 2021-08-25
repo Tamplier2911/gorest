@@ -1,0 +1,700 @@
+basePath: /api/v2
+definitions:
+  Comment:
+    properties:
+      body:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      postId:
+        type: string
+      userId:
+        type: string
+    type: object
+  CreateCommentRequest:
+    properties:
+      body:
+        type: string
+      name:
+        type: string
+      postId:
+        type: string
+    required:
+    - body
+    - name
+    - postId
+    type: object
+  CreateCommentResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/Comment'
+      message:
+        type: string
+    type: object
+  CreatePostRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  CreatePostResponse:
+    properties:
+      message:
+        type: string
+      post:
+        $ref: '#/definitions/Post'
+    type: object
+  DeleteCommentResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  DeletePostResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  GetCommentResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/Comment'
+      message:
+        type: string
+    type: object
+  GetCommentsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/Comment'
+        type: array
+      message:
+        type: string
+      total:
+        type: integer
+    type: object
+  Post:
+    properties:
+      body:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      userId:
+        type: string
+    type: object
+  UpdateCommentRequest:
+    properties:
+      body:
+        type: string
+      name:
+        type: string
+    required:
+    - body
+    - name
+    type: object
+  UpdateCommentResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/Comment'
+      message:
+        type: string
+    type: object
+  UpdatePostRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  UpdatePostResponse:
+    properties:
+      message:
+        type: string
+      post:
+        $ref: '#/definitions/Post'
+    type: object
+  auth.FacebookCallbackHandlerResponseBody:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  auth.GithubCallbackHandlerResponseBody:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  auth.GoogleCallbackHandlerResponseBody:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse:
+    properties:
+      message:
+        type: string
+      posts:
+        items:
+          $ref: '#/definitions/Post'
+        type: array
+      total:
+        type: integer
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: artyom.nikolaev@syahoo.com
+  description: This is a sample rest api realized in go language for education purposes.
+  title: Go REST API example
+  version: "2.0"
+paths:
+  /auth/facebook/callback:
+    get:
+      description: Verifies code and state, exchanges code with authorization token,
+      operationId: FacebookCallback
+      parameters:
+      - description: Parameter for code grant
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: Parameter for state
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.FacebookCallbackHandlerResponseBody'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.FacebookCallbackHandlerResponseBody'
+        "401":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.FacebookCallbackHandlerResponseBody'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.FacebookCallbackHandlerResponseBody'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/auth.FacebookCallbackHandlerResponseBody'
+      summary: Callback triggered once user respond to facebook authorization popup.
+      tags:
+      - Auth
+  /auth/facebook/login:
+    get:
+      description: Directs users to facebook popup to grant access to user account.
+      operationId: FacebookLogin
+      responses:
+        "307":
+          description: url
+          schema:
+            type: string
+      summary: Login with facebook.
+      tags:
+      - Auth
+  /auth/github/callback:
+    get:
+      description: Verifies code and state, exchanges code with authorization token,
+      operationId: GithubCallback
+      parameters:
+      - description: Parameter for code grant
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: Parameter for state
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.GithubCallbackHandlerResponseBody'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.GithubCallbackHandlerResponseBody'
+        "401":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.GithubCallbackHandlerResponseBody'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.GithubCallbackHandlerResponseBody'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/auth.GithubCallbackHandlerResponseBody'
+      summary: Callback triggered once user respond to github authorization popup.
+      tags:
+      - Auth
+  /auth/github/login:
+    get:
+      description: Directs users to github popup to grant access to user account.
+      operationId: GithubLogin
+      responses:
+        "307":
+          description: url
+          schema:
+            type: string
+      summary: Login with github.
+      tags:
+      - Auth
+  /auth/google/callback:
+    get:
+      description: Verifies code and state, exchanges code with authorization token,
+      operationId: GoogleCallback
+      parameters:
+      - description: Parameter for code grant
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: Parameter for state
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.GoogleCallbackHandlerResponseBody'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.GoogleCallbackHandlerResponseBody'
+        "401":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.GoogleCallbackHandlerResponseBody'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.GoogleCallbackHandlerResponseBody'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/auth.GoogleCallbackHandlerResponseBody'
+      summary: Callback triggered once user respond to google authorization popup.
+      tags:
+      - Auth
+  /auth/google/login:
+    get:
+      description: Directs users to google popup to grant access to user account.
+      operationId: GoogleLogin
+      responses:
+        "307":
+          description: url
+          schema:
+            type: string
+      summary: Login with google.
+      tags:
+      - Auth
+  /comments:
+    get:
+      description: Gets comment records from database using provided query.
+      operationId: GetComments
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      - in: query
+        name: postID
+        type: string
+      - in: query
+        name: userID
+        type: string
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/GetCommentsResponse'
+      summary: Gets comment records.
+      tags:
+      - Comments
+    post:
+      consumes:
+      - application/json
+      description: Creates comment record in database using provided data.
+      operationId: CreateComment
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/CreateCommentRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Creates comment record.
+      tags:
+      - Comments
+  /comments/{id}:
+    delete:
+      description: Deletes comment record from database using provided id.
+      operationId: DeleteComment
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/DeleteCommentResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Deletes comment record.
+      tags:
+      - Comments
+    get:
+      description: Gets comment record from database using provided id.
+      operationId: GetComment
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+      summary: Gets comment record.
+      tags:
+      - Comments
+    put:
+      consumes:
+      - application/json
+      description: Updates comment record in database using provided data.
+      operationId: UpdateComment
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateCommentRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Updates comment record.
+      tags:
+      - Comments
+  /posts:
+    get:
+      description: Gets post records from database using provided query.
+      operationId: GetPosts
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+      summary: Gets post records.
+      tags:
+      - Posts
+    post:
+      consumes:
+      - application/json
+      description: Creates post record in database using provided data.
+      operationId: CreatePost
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/CreatePostRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/CreatePostResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Creates post record.
+      tags:
+      - Posts
+  /posts/{id}:
+    delete:
+      description: Deletes post record from database using provided id.
+      operationId: DeletePost
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/DeletePostResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Deletes post record.
+      tags:
+      - Posts
+    get:
+      description: Gets post record from database using provided id.
+      operationId: GetPost
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse'
+      summary: Gets post record.
+      tags:
+      - Posts
+    put:
+      consumes:
+      - application/json
+      description: Updates post record in database using provided data.
+      operationId: UpdatePost
+      parameters:
+      - description: data
+        in: body
+        name: fields
+        required: true
+        schema:
+          $ref: '#/definitions/UpdatePostRequest'
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdatePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/UpdatePostResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/UpdatePostResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/UpdatePostResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/UpdatePostResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Updates post record.
+      tags:
+      - Posts
+swagger: "2.0"
