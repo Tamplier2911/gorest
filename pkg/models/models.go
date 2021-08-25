@@ -96,3 +96,18 @@ const (
 	AuthProviderTypeFacebook AuthProviderType = "facebook"
 	AuthProviderTypeGithub   AuthProviderType = "github"
 )
+
+// origin
+// https://console.cloud.google.com/apis/credentials?folder=&hl=RU&organizationId=&project=gorest-323217
+// decliner
+// https://myaccount.google.com/permissions?continue=https%3A%2F%2Fmyaccount.google.com%2Fsecurity
+
+// origin
+// https://developers.facebook.com/apps/208618197804435/settings/basic/
+// decliner
+// https://www.facebook.com/settings?tab=applications&ref=settings
+
+// origin
+// https://github.com/settings/developers
+// declinder
+// https://github.com/settings/applications

@@ -26,6 +26,246 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/facebook/callback": {
+            "get": {
+                "description": "Verifies code and state, exchanges code with authorization token,",
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Callback triggered once user respond to facebook authorization popup.",
+                "operationId": "FacebookCallback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Parameter for code grant",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Parameter for state",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.FacebookCallbackHandlerResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.FacebookCallbackHandlerResponseBody"
+                        }
+                    },
+                    "401": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.FacebookCallbackHandlerResponseBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.FacebookCallbackHandlerResponseBody"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/auth.FacebookCallbackHandlerResponseBody"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/facebook/login": {
+            "get": {
+                "description": "Directs users to facebook popup to grant access to user account.",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login with facebook.",
+                "operationId": "FacebookLogin",
+                "responses": {
+                    "307": {
+                        "description": "url",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/github/callback": {
+            "get": {
+                "description": "Verifies code and state, exchanges code with authorization token,",
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Callback triggered once user respond to github authorization popup.",
+                "operationId": "GithubCallback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Parameter for code grant",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Parameter for state",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GithubCallbackHandlerResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GithubCallbackHandlerResponseBody"
+                        }
+                    },
+                    "401": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GithubCallbackHandlerResponseBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GithubCallbackHandlerResponseBody"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GithubCallbackHandlerResponseBody"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/github/login": {
+            "get": {
+                "description": "Directs users to github popup to grant access to user account.",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login with github.",
+                "operationId": "GithubLogin",
+                "responses": {
+                    "307": {
+                        "description": "url",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/callback": {
+            "get": {
+                "description": "Verifies code and state, exchanges code with authorization token,",
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Callback triggered once user respond to google authorization popup.",
+                "operationId": "GoogleCallback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Parameter for code grant",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Parameter for state",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GoogleCallbackHandlerResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GoogleCallbackHandlerResponseBody"
+                        }
+                    },
+                    "401": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GoogleCallbackHandlerResponseBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GoogleCallbackHandlerResponseBody"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/auth.GoogleCallbackHandlerResponseBody"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/login": {
+            "get": {
+                "description": "Directs users to google popup to grant access to user account.",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login with google.",
+                "operationId": "GoogleLogin",
+                "responses": {
+                    "307": {
+                        "description": "url",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/comments": {
             "get": {
                 "description": "Gets comment records from database using provided query.",
@@ -94,6 +334,11 @@ var doc = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates comment record in database using provided data.",
                 "consumes": [
                     "application/json"
@@ -198,6 +443,11 @@ var doc = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates comment record in database using provided data.",
                 "consumes": [
                     "application/json"
@@ -256,6 +506,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes comment record from database using provided id.",
                 "produces": [
                     "application/json",
@@ -328,36 +583,41 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates post record in database using provided data.",
                 "consumes": [
                     "application/json"
@@ -432,36 +692,41 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "404": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_core_posts.GetPostResponse"
+                            "$ref": "#/definitions/github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse"
                         }
                     }
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Updates post record in database using provided data.",
                 "consumes": [
                     "application/json"
@@ -520,6 +785,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deletes post record from database using provided id.",
                 "produces": [
                     "application/json",
@@ -566,16 +836,13 @@ var doc = `{
         }
     },
     "definitions": {
-        "CreateCommentRequest": {
+        "Comment": {
             "type": "object",
-            "required": [
-                "body",
-                "name",
-                "postId",
-                "userId"
-            ],
             "properties": {
                 "body": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {
@@ -589,11 +856,30 @@ var doc = `{
                 }
             }
         },
+        "CreateCommentRequest": {
+            "type": "object",
+            "required": [
+                "body",
+                "name",
+                "postId"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "postId": {
+                    "type": "string"
+                }
+            }
+        },
         "CreateCommentResponse": {
             "type": "object",
             "properties": {
                 "comment": {
-                    "$ref": "#/definitions/models.Comment"
+                    "$ref": "#/definitions/Comment"
                 },
                 "message": {
                     "type": "string"
@@ -604,17 +890,13 @@ var doc = `{
             "type": "object",
             "required": [
                 "body",
-                "title",
-                "userId"
+                "title"
             ],
             "properties": {
                 "body": {
                     "type": "string"
                 },
                 "title": {
-                    "type": "string"
-                },
-                "userId": {
                     "type": "string"
                 }
             }
@@ -626,7 +908,7 @@ var doc = `{
                     "type": "string"
                 },
                 "post": {
-                    "$ref": "#/definitions/models.Post"
+                    "$ref": "#/definitions/Post"
                 }
             }
         },
@@ -650,7 +932,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "comment": {
-                    "$ref": "#/definitions/models.Comment"
+                    "$ref": "#/definitions/Comment"
                 },
                 "message": {
                     "type": "string"
@@ -663,7 +945,7 @@ var doc = `{
                 "comments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Comment"
+                        "$ref": "#/definitions/Comment"
                     }
                 },
                 "message": {
@@ -671,6 +953,23 @@ var doc = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "Post": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
                 }
             }
         },
@@ -692,6 +991,9 @@ var doc = `{
         "UpdateCommentResponse": {
             "type": "object",
             "properties": {
+                "comment": {
+                    "$ref": "#/definitions/Comment"
+                },
                 "message": {
                     "type": "string"
                 }
@@ -717,54 +1019,59 @@ var doc = `{
             "properties": {
                 "message": {
                     "type": "string"
+                },
+                "post": {
+                    "$ref": "#/definitions/Post"
                 }
             }
         },
-        "github.com_Tamplier2911_gorest_core_posts.GetPostResponse": {
+        "auth.FacebookCallbackHandlerResponseBody": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
                 },
-                "post": {
-                    "$ref": "#/definitions/models.Post"
-                }
-            }
-        },
-        "models.Comment": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "postId": {
-                    "type": "string"
-                },
-                "userId": {
+                "token": {
                     "type": "string"
                 }
             }
         },
-        "models.Post": {
+        "auth.GithubCallbackHandlerResponseBody": {
             "type": "object",
             "properties": {
-                "body": {
+                "message": {
                     "type": "string"
                 },
-                "id": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.GoogleCallbackHandlerResponseBody": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 },
-                "title": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github.com_Tamplier2911_gorest_internal_v2_posts.GetPostResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 },
-                "userId": {
-                    "type": "string"
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Post"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }
