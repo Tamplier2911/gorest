@@ -3,6 +3,7 @@ module github.com/Tamplier2911/gorest/pkg
 go 1.16
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/iamolegga/enviper v1.2.1
 	github.com/labstack/echo/v4 v4.5.0
