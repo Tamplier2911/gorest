@@ -10,7 +10,7 @@ type Comments struct {
 	*service.Service
 }
 
-func (cm *Comments) Setup(s *service.Service) {
+func (cm Comments) Setup(s *service.Service) {
 	cm.Service = s
 
 	// configure router

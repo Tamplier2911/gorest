@@ -81,7 +81,6 @@ func (s *Service) Initialize(options *InitializeOptions) {
 }
 
 func (s *Service) Start() {
-
 	// if echo initialized run both servers in parallel
 	if s.Echo != nil {
 		var wg sync.WaitGroup

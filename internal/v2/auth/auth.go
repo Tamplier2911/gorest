@@ -17,7 +17,7 @@ type Auth struct {
 	GithubOauthConfig   *oauth2.Config
 }
 
-func (a *Auth) Setup(s *service.Service) {
+func (a Auth) Setup(s *service.Service) {
 	a.Service = s
 
 	// setup google oauth config

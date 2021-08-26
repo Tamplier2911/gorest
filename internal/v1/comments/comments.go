@@ -1,4 +1,4 @@
-package v1_comments
+package comments
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ type Comments struct {
 	*service.Service
 }
 
-func (c *Comments) Setup(s *service.Service) {
+func (c Comments) Setup(s *service.Service) {
 	c.Service = s
 
 	// configure router

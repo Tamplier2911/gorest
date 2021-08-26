@@ -16,6 +16,7 @@ require (
 	github.com/labstack/echo/v4 v4.5.0
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/echo-swagger v1.1.2
 	github.com/swaggo/swag v1.7.1
 	golang.org/x/crypto v0.0.0-20210813211128-0a44fdfbc16e // indirect
