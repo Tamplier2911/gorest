@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Represent output data of DeletePostHandler
@@ -90,6 +91,7 @@ func (p *Posts) DeletePostHandler(c echo.Context) error {
 	// delete post from database
 	logger.Infow("deleting post from database")
 	err = p.MySQL.
+		Select(clause.Associations).
 		Delete(&post).
 		Error
 	if err != nil {
