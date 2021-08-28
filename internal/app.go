@@ -1,4 +1,4 @@
-package internal
+package app
 
 import (
 	"github.com/Tamplier2911/gorest/pkg/models"
@@ -52,3 +52,12 @@ func (m *Monolith) Setup() {
 	// /api/v2/comments
 	comments.Comments{}.Setup(&m.Service)
 }
+
+// TODO:
+// implement test client
+// implement test for local endpoints
+// implement stubs for foreign endpoints
+// implement tests for foreign endpoints
+// repeat both files
+// complete test
+// enjoy level three

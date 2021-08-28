@@ -11,7 +11,7 @@ import "github.com/Tamplier2911/gorest/internal"
 // @host localhost:8000
 // @BasePath /api/v2
 func main() {
-	app := internal.Monolith{}
+	app := app.Monolith{}
 	app.Setup()
 	app.Start()
 }

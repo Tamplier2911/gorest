@@ -3,8 +3,10 @@ package tests
 import (
 	"testing"
 
-	"github.com/Tamplier2911/gorest/internal"
-	"github.com/Tamplier2911/gorest/pkg/models"
+	app "github.com/Tamplier2911/gorest/internal"
+	"github.com/Tamplier2911/gorest/internal/v2/comments"
+	"github.com/Tamplier2911/gorest/pkg/access"
+	"github.com/Tamplier2911/gorest/pkg/testclient"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -12,117 +14,142 @@ import (
 func TestGetCommentsHandler(t *testing.T) {
 
 	// init service
-	m := internal.Monolith{}
+	m := app.Monolith{}
+	m.Setup()
 
 	// init test fixtures
-	testUser := models.User{
-		Username: "user_get_comments_test",
-		Email:    "user_get_comments@test.com",
-		UserRole: models.UserRoleUser,
-	}
-	err := m.MySQL.Create(&testUser).Error
-	require.NoError(t, err, "failed to create test user")
+	testFixtures := CommentsTestFixtures()
+	fixtures, err := testFixtures.Setup()
+	require.NoError(t, err, "failed to setup test fixtures")
 
-	testPosts := []models.Post{
-		{
-			UserID: testUser.ID,
-			Title:  "test post 1",
-			Body:   "test post 1",
-		},
-		{
-			UserID: uuid.New(),
-			Title:  "test post 1",
-			Body:   "test post 1",
-		},
-	}
-	err = m.MySQL.Create(&testPosts).Error
-	require.NoError(t, err, "failed to create test posts")
-
-	testComments := []models.Comment{
-		{
-			PostID: testPosts[0].ID,
-			UserID: testUser.ID,
-			Name:   "comment 1",
-			Body:   "comment 1",
-		},
-		{
-			PostID: testPosts[0].ID,
-			UserID: uuid.New(),
-			Name:   "comment 2",
-			Body:   "comment 2",
-		},
-		{
-			PostID: testPosts[1].ID,
-			UserID: testUser.ID,
-			Name:   "comment 3",
-			Body:   "comment 3",
-		},
-		{
-			PostID: testPosts[1].ID,
-			UserID: uuid.New(),
-			Name:   "comment 4",
-			Body:   "comment 4",
-		},
-		{
-			PostID: testPosts[1].ID,
-			UserID: uuid.New(),
-			Name:   "comment 5",
-			Body:   "comment 5",
-		},
-		{
-			PostID: uuid.New(),
-			UserID: uuid.New(),
-			Name:   "comment 6",
-			Body:   "comment 6",
-		},
-		{
-			PostID: uuid.New(),
-			UserID: uuid.New(),
-			Name:   "comment 7",
-			Body:   "comment 7",
-		},
-	}
-	err = m.MySQL.Create(&testComments).Error
-	require.NoError(t, err, "failed to create test posts")
+	// init test client
+	testClient := testclient.TestClient{}
+	testClient.Setup(&testclient.Options{
+		Router: m.Echo,
+		Token: access.MustEncodeToken(&access.Token{
+			UserID: fixtures.TestPostOneID,
+		}, m.Config.HMACSecret),
+	})
 
 	defer func() {
-		// clean up test data
-		err = m.MySQL.Unscoped().Delete(&testComments).Error
-		require.NoError(t, err, "failed to delete test comments")
-
-		err = m.MySQL.Unscoped().Delete(&testPosts).Error
-		require.NoError(t, err, "failed to delete test posts")
-
-		err := m.MySQL.Unscoped().Delete(&testUser).Error
-		require.NoError(t, err, "failed to delete test users")
+		// cleanup test data
+		err := testFixtures.Teardown()
+		require.NoError(t, err, "failed to clean up test fixtures")
 	}()
 
 	t.Run("should error if passing invalid user id", func(t *testing.T) {
-
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  20,
+				Offset: 0,
+				UserID: "invalid uuid",
+			},
+			Response: &res,
+		})
+		require.Error(t, err, "parsed invalid uuid")
 	})
 
 	t.Run("should error if passing invalid post id", func(t *testing.T) {
-
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  20,
+				Offset: 0,
+				PostID: "invalid uuid",
+			},
+			Response: &res,
+		})
+		require.Error(t, err, "parsed invalid uuid")
 	})
 
 	t.Run("should get all comments", func(t *testing.T) {
-
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  20,
+				Offset: 0,
+			},
+			Response: &res,
+		})
+		require.NoError(t, err, "unexpected response")
+		require.Equal(t, fixtures.TotalComments, int(res.Total), "invalid total length")
 	})
 
 	t.Run("should get all comments related to user", func(t *testing.T) {
-
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  20,
+				Offset: 0,
+				UserID: fixtures.TestUserOneID.String(),
+			},
+			Response: &res,
+		})
+		require.NoError(t, err, "unexpected response")
+		require.Equal(t, fixtures.TotalCommentsByUserOne, int(res.Total), "invalid total length")
 	})
 
 	t.Run("should get all comments related to post", func(t *testing.T) {
-
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  20,
+				Offset: 0,
+				PostID: fixtures.TestPostOneID.String(),
+			},
+			Response: &res,
+		})
+		require.NoError(t, err, "unexpected response")
+		require.Equal(t, fixtures.TotalCommentsInPostOne, int(res.Total), "invalid total length")
 	})
 
+	var prevCommentId uuid.UUID
 	t.Run("limit should work", func(t *testing.T) {
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  1,
+				Offset: 0,
+			},
+			Response: &res,
+		})
+		require.NoError(t, err, "unexpected response")
+		require.Len(t, *res.Comments, 1, "invalid response length")
 
+		for _, c := range *res.Comments {
+			prevCommentId = c.ID
+		}
 	})
 
 	t.Run("offset should work", func(t *testing.T) {
+		var res comments.GetCommentsHandlerResponseBody
+		err := testClient.Request(&testclient.RequestOptions{
+			Method: "GET",
+			URL:    "/api/v2/comments",
+			Query: &comments.GetCommentsHandlerRequestQuery{
+				Limit:  1,
+				Offset: 1,
+			},
+			Response: &res,
+		})
+		require.NoError(t, err, "unexpected response")
 
+		for _, c := range *res.Comments {
+			require.NotEqual(t, prevCommentId, c.ID, "got same comment with different offset")
+		}
 	})
 
 }
