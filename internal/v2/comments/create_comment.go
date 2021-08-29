@@ -71,7 +71,7 @@ func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 	if err != nil {
 		logger.Errorw("failed to validate body", "err", err)
 		return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentHandlerResponseBody{
-			Message: "failed to parse validate body",
+			Message: "failed to validate body",
 		})
 	}
 

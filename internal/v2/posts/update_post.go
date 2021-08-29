@@ -11,13 +11,13 @@ import (
 )
 
 // Represent input data of UpdatePostHandler
-type UpdatePostRequestBody struct {
+type UpdatePostHandlerRequestBody struct {
 	Title string `json:"title" form:"title" binding:"required" validate:"required"`
 	Body  string `json:"body" form:"body" binding:"required" validate:"required"`
 } // @name UpdatePostRequest
 
 // Represent output data of UpdatePostHandler
-type UpdatePostResponseBody struct {
+type UpdatePostHandlerResponseBody struct {
 	Post    *models.Post `json:"post" xml:"post"`
 	Message string       `json:"message" xml:"message"`
 } // @name UpdatePostResponse
@@ -35,12 +35,12 @@ type UpdatePostResponseBody struct {
 // @Produce json
 // @Produce xml
 //
-// @Param fields body UpdatePostRequestBody true "data"
+// @Param fields body UpdatePostHandlerRequestBody true "data"
 //
-// @Success 200 	{object} UpdatePostResponseBody
-// @Failure 400,404 {object} UpdatePostResponseBody
-// @Failure 500 	{object} UpdatePostResponseBody
-// @Failure default {object} UpdatePostResponseBody
+// @Success 200 	{object} UpdatePostHandlerResponseBody
+// @Failure 400,404 {object} UpdatePostHandlerResponseBody
+// @Failure 500 	{object} UpdatePostHandlerResponseBody
+// @Failure default {object} UpdatePostHandlerResponseBody
 //
 // @Security ApiKeyAuth
 //
@@ -62,7 +62,7 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 	postId, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
-		return p.ResponseWriter(c, http.StatusBadRequest, UpdatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusBadRequest, UpdatePostHandlerResponseBody{
 			Message: "failed to parse uuid",
 		})
 	}
@@ -70,15 +70,25 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 
 	// parse body data
 	logger.Infow("parsing request body")
-	var body CreatePostRequestBody
+	var body UpdatePostHandlerRequestBody
 	err = c.Bind(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
-		return p.ResponseWriter(c, http.StatusBadRequest, UpdatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusBadRequest, UpdatePostHandlerResponseBody{
 			Message: "failed to parse request body",
 		})
 	}
 	logger = logger.With("body", body)
+
+	// validate body data
+	logger.Infow("validating request body")
+	err = p.Validator.Struct(&body)
+	if err != nil {
+		logger.Errorw("failed to validate body", "err", err)
+		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostHandlerResponseBody{
+			Message: "failed to validate body",
+		})
+	}
 
 	// get post from database
 	var post models.Post
@@ -90,12 +100,12 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return p.ResponseWriter(c, http.StatusNotFound, UpdatePostResponseBody{
+			return p.ResponseWriter(c, http.StatusNotFound, UpdatePostHandlerResponseBody{
 				Message: "failed to find record with provided id",
 			})
 		}
 		logger.Errorw("failed to find post record in database", "err", err)
-		return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostHandlerResponseBody{
 			Message: "failed to update post",
 		})
 	}
@@ -105,7 +115,7 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 	logger.Infow("checking if user is author a post")
 	if token.UserID != post.UserID {
 		logger.Errorw("user is not author of current post", "err", err)
-		return p.ResponseWriter(c, http.StatusForbidden, UpdatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusForbidden, UpdatePostHandlerResponseBody{
 			Message: "only author can change post content",
 		})
 	}
@@ -118,14 +128,14 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		logger.Errorw("failed to update post in database", "err", err)
-		return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusInternalServerError, UpdatePostHandlerResponseBody{
 			Message: "failed to update post",
 		})
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := UpdatePostResponseBody{
+	res := UpdatePostHandlerResponseBody{
 		Post:    &post,
 		Message: "successfully updated post",
 	}

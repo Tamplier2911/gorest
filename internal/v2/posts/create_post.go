@@ -9,13 +9,13 @@ import (
 )
 
 // Represent input data of CreatePostHandler
-type CreatePostRequestBody struct {
+type CreatePostHandlerRequestBody struct {
 	Title string `json:"title" form:"title" binding:"required" validate:"required"`
 	Body  string `json:"body" form:"body" binding:"required" validate:"required"`
 } // @name CreatePostRequest
 
 // Represent output data of CreatePostHandler
-type CreatePostResponseBody struct {
+type CreatePostHandlerResponseBody struct {
 	Post    *models.Post `json:"post" xml:"post"`
 	Message string       `json:"message" xml:"message"`
 } // @name CreatePostResponse
@@ -33,12 +33,12 @@ type CreatePostResponseBody struct {
 // @Produce json
 // @Produce xml
 //
-// @Param fields body CreatePostRequestBody true "data"
+// @Param fields body CreatePostHandlerRequestBody true "data"
 //
-// @Success 201 	{object} CreatePostResponseBody
-// @Failure 400,404 {object} CreatePostResponseBody
-// @Failure 500 	{object} CreatePostResponseBody
-// @Failure default {object} CreatePostResponseBody
+// @Success 201 	{object} CreatePostHandlerResponseBody
+// @Failure 400,404 {object} CreatePostHandlerResponseBody
+// @Failure 500 	{object} CreatePostHandlerResponseBody
+// @Failure default {object} CreatePostHandlerResponseBody
 //
 // @Security ApiKeyAuth
 //
@@ -52,15 +52,25 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 
 	// parse body data
 	logger.Infow("parsing request body")
-	var body CreatePostRequestBody
+	var body CreatePostHandlerRequestBody
 	err := c.Bind(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
-		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostHandlerResponseBody{
 			Message: "failed to parse request body",
 		})
 	}
 	logger = logger.With("body", body)
+
+	// validate body data
+	logger.Infow("validating request body")
+	err = p.Validator.Struct(&body)
+	if err != nil {
+		logger.Errorw("failed to validate body", "err", err)
+		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostHandlerResponseBody{
+			Message: "failed to validate body",
+		})
+	}
 
 	// save instance of post in database
 	logger.Infow("saving post to database")
@@ -72,14 +82,14 @@ func (p *Posts) CreatePostHandler(c echo.Context) error {
 	err = p.MySQL.Model(&models.Post{}).Create(&post).Error
 	if err != nil {
 		logger.Errorw("failed to save post in database", "err", err)
-		return p.ResponseWriter(c, http.StatusInternalServerError, CreatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusInternalServerError, CreatePostHandlerResponseBody{
 			Message: "failed to create post",
 		})
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := CreatePostResponseBody{
+	res := CreatePostHandlerResponseBody{
 		Post:    &post,
 		Message: "successfully created post",
 	}

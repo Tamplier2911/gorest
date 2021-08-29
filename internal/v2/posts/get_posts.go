@@ -48,7 +48,7 @@ func (p *Posts) GetPostsHandler(c echo.Context) error {
 	err := c.Bind(&query)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
-		return p.ResponseWriter(c, http.StatusBadRequest, CreatePostResponseBody{
+		return p.ResponseWriter(c, http.StatusBadRequest, GetPostsHandlerResponseBody{
 			Message: "failed to parse request body",
 		})
 	}

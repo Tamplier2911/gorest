@@ -28,7 +28,7 @@ type TestFixturesData struct {
 	TotalCommentsByUserTwo int
 }
 
-// CommentTestFixtures return instance of fixture.
+// CommentsTestFixtures return instance of fixture.
 func CommentsTestFixtures() Fixture {
 	// init service
 	m := app.Monolith{}
