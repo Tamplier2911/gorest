@@ -13,8 +13,8 @@ import (
 
 // Represent input data of UpdateCommentHandler
 type UpdateCommentRequestBody struct {
-	Name string `json:"name" form:"name" url:"name" binding:"required"`
-	Body string `json:"body" form:"body" url:"body" binding:"required"`
+	Name string `json:"name" form:"name" url:"name" binding:"required" validate:"required"`
+	Body string `json:"body" form:"body" url:"body" binding:"required" validate:"required"`
 }
 
 // Represent output data of UpdateCommentHandler

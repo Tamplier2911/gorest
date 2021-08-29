@@ -6,16 +6,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type Fixtures struct {
+// Fixtures represent test fixture.
+type Fixture struct {
 	Setup    func() (TestFixturesData, error)
 	Teardown func() error
 }
 
+// TestFixtureData represent set of test fixture data.
 type TestFixturesData struct {
-	TestUserOneID          uuid.UUID
-	TestUserTwoID          uuid.UUID
-	TestPostOneID          uuid.UUID
-	TestPostTwoID          uuid.UUID
+	TestUserOneID           uuid.UUID
+	TestUserTwoID           uuid.UUID
+	TestPostOneID           uuid.UUID
+	TestPostTwoID           uuid.UUID
+	TestUserOneCommentOneID uuid.UUID
+	TestUserTwoCommentOneID uuid.UUID
+
 	TotalComments          int
 	TotalCommentsInPostOne int
 	TotalCommentsInPostTwo int
@@ -23,7 +28,8 @@ type TestFixturesData struct {
 	TotalCommentsByUserTwo int
 }
 
-func CommentsTestFixtures() Fixtures {
+// CommentTestFixtures return instance of fixture.
+func CommentsTestFixtures() Fixture {
 	// init service
 	m := app.Monolith{}
 	m.Setup()
@@ -148,12 +154,14 @@ func CommentsTestFixtures() Fixtures {
 		}
 
 		return TestFixturesData{
-			TestUserOneID: testUsers[0].ID,
-			TestUserTwoID: testUsers[1].ID,
-			TestPostOneID: testPosts[0].ID,
-			TestPostTwoID: testPosts[1].ID,
-			TotalComments: len(testComments),
+			TestUserOneID:           testUsers[0].ID,
+			TestUserTwoID:           testUsers[1].ID,
+			TestPostOneID:           testPosts[0].ID,
+			TestPostTwoID:           testPosts[1].ID,
+			TestUserOneCommentOneID: testComments[0].ID,
+			TestUserTwoCommentOneID: testComments[1].ID,
 
+			TotalComments:          len(testComments),
 			TotalCommentsByUserOne: totalByUserOne,
 			TotalCommentsByUserTwo: totalByUserTwo,
 			TotalCommentsInPostOne: totalInPostOne,
@@ -183,7 +191,7 @@ func CommentsTestFixtures() Fixtures {
 		return nil
 	}
 
-	return Fixtures{
+	return Fixture{
 		Setup:    setup,
 		Teardown: teardown,
 	}

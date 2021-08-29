@@ -19,8 +19,9 @@ type Monolith struct {
 
 func (m *Monolith) Setup() {
 	m.Initialize(&service.InitializeOptions{
-		MySQL: true,
-		Echo:  true,
+		MySQL:     true,
+		Echo:      true,
+		Validator: true,
 	})
 
 	// default port '8080' || export GOREST_PORT='8080' || m.Server.Addr = ":3000"

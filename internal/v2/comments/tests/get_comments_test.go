@@ -12,14 +12,13 @@ import (
 )
 
 func TestGetCommentsHandler(t *testing.T) {
-
 	// init service
 	m := app.Monolith{}
 	m.Setup()
 
 	// init test fixtures
-	testFixtures := CommentsTestFixtures()
-	fixtures, err := testFixtures.Setup()
+	fixture := CommentsTestFixtures()
+	testData, err := fixture.Setup()
 	require.NoError(t, err, "failed to setup test fixtures")
 
 	// init test client
@@ -27,13 +26,13 @@ func TestGetCommentsHandler(t *testing.T) {
 	testClient.Setup(&testclient.Options{
 		Router: m.Echo,
 		Token: access.MustEncodeToken(&access.Token{
-			UserID: fixtures.TestPostOneID,
+			UserID: testData.TestUserOneID,
 		}, m.Config.HMACSecret),
 	})
 
 	defer func() {
 		// cleanup test data
-		err := testFixtures.Teardown()
+		err := fixture.Teardown()
 		require.NoError(t, err, "failed to clean up test fixtures")
 	}()
 
@@ -79,7 +78,7 @@ func TestGetCommentsHandler(t *testing.T) {
 			Response: &res,
 		})
 		require.NoError(t, err, "unexpected response")
-		require.Equal(t, fixtures.TotalComments, int(res.Total), "invalid total length")
+		require.Equal(t, testData.TotalComments, int(res.Total), "invalid total length")
 	})
 
 	t.Run("should get all comments related to user", func(t *testing.T) {
@@ -90,12 +89,12 @@ func TestGetCommentsHandler(t *testing.T) {
 			Query: &comments.GetCommentsHandlerRequestQuery{
 				Limit:  20,
 				Offset: 0,
-				UserID: fixtures.TestUserOneID.String(),
+				UserID: testData.TestUserOneID.String(),
 			},
 			Response: &res,
 		})
 		require.NoError(t, err, "unexpected response")
-		require.Equal(t, fixtures.TotalCommentsByUserOne, int(res.Total), "invalid total length")
+		require.Equal(t, testData.TotalCommentsByUserOne, int(res.Total), "invalid total length")
 	})
 
 	t.Run("should get all comments related to post", func(t *testing.T) {
@@ -106,12 +105,12 @@ func TestGetCommentsHandler(t *testing.T) {
 			Query: &comments.GetCommentsHandlerRequestQuery{
 				Limit:  20,
 				Offset: 0,
-				PostID: fixtures.TestPostOneID.String(),
+				PostID: testData.TestPostOneID.String(),
 			},
 			Response: &res,
 		})
 		require.NoError(t, err, "unexpected response")
-		require.Equal(t, fixtures.TotalCommentsInPostOne, int(res.Total), "invalid total length")
+		require.Equal(t, testData.TotalCommentsInPostOne, int(res.Total), "invalid total length")
 	})
 
 	var prevCommentId uuid.UUID

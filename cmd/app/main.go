@@ -1,6 +1,6 @@
 package main
 
-import "github.com/Tamplier2911/gorest/internal"
+import app "github.com/Tamplier2911/gorest/internal"
 
 // @title Go REST API example
 // @version 2.0

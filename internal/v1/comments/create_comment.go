@@ -11,10 +11,10 @@ import (
 
 // Represent input data of CreateCommentHandler
 type CreateCommentRequestBody struct {
-	PostID string `json:"postId" form:"postId" url:"postId" binding:"required"`
-	UserID string `json:"userId" form:"userId" url:"userId" binding:"required"`
-	Name   string `json:"name" form:"name" url:"name" binding:"required"`
-	Body   string `json:"body" form:"body" url:"body" binding:"required"`
+	PostID string `json:"postId" form:"postId" url:"postId" binding:"required" validate:"required"`
+	UserID string `json:"userId" form:"userId" url:"userId" binding:"required" validate:"required"`
+	Name   string `json:"name" form:"name" url:"name" binding:"required" validate:"required"`
+	Body   string `json:"body" form:"body" url:"body" binding:"required" validate:"required"`
 }
 
 // Represent output data of CreateCommentHandler

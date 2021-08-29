@@ -834,6 +834,7 @@
                     "type": "string"
                 },
                 "postId": {
+                    "description": "fk",
                     "type": "string"
                 },
                 "userId": {
@@ -947,6 +948,13 @@
                 "body": {
                     "type": "string"
                 },
+                "comment": {
+                    "description": "one-to-many relation",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Comment"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },
@@ -954,6 +962,7 @@
                     "type": "string"
                 },
                 "userId": {
+                    "description": "fk",
                     "type": "string"
                 }
             }
@@ -1049,14 +1058,8 @@
                 "message": {
                     "type": "string"
                 },
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Post"
-                    }
-                },
-                "total": {
-                    "type": "integer"
+                "post": {
+                    "$ref": "#/definitions/Post"
                 }
             }
         }

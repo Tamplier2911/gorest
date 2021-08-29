@@ -116,3 +116,10 @@ const (
 // https://github.com/settings/developers
 // declinder
 // https://github.com/settings/applications
+
+// TODO: remove
+// err := echo.FormFieldBinder(c).
+// 	MustString("postId", &a).
+// 	MustString("name", &b).
+// 	MustString("body", &z).
+// 	BindError()

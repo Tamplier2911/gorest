@@ -13,8 +13,8 @@ import (
 
 // Represent input data of UpdatePostHandler
 type UpdatePostRequestBody struct {
-	Title string `json:"title" form:"title" url:"title" binding:"required"`
-	Body  string `json:"body" form:"body" url:"body" binding:"required"`
+	Title string `json:"title" form:"title" url:"title" binding:"required" validate:"required"`
+	Body  string `json:"body" form:"body" url:"body" binding:"required" validate:"required"`
 }
 
 // Represent output data of UpdatePostHandler

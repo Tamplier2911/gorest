@@ -849,6 +849,7 @@ var doc = `{
                     "type": "string"
                 },
                 "postId": {
+                    "description": "fk",
                     "type": "string"
                 },
                 "userId": {
@@ -962,6 +963,13 @@ var doc = `{
                 "body": {
                     "type": "string"
                 },
+                "comment": {
+                    "description": "one-to-many relation",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Comment"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },
@@ -969,6 +977,7 @@ var doc = `{
                     "type": "string"
                 },
                 "userId": {
+                    "description": "fk",
                     "type": "string"
                 }
             }
@@ -1064,14 +1073,8 @@ var doc = `{
                 "message": {
                     "type": "string"
                 },
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Post"
-                    }
-                },
-                "total": {
-                    "type": "integer"
+                "post": {
+                    "$ref": "#/definitions/Post"
                 }
             }
         }

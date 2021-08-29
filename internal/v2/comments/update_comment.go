@@ -11,13 +11,13 @@ import (
 )
 
 // Represent input data of UpdateCommentHandler
-type UpdateCommentRequestBody struct {
-	Name string `json:"name" form:"name" binding:"required"`
-	Body string `json:"body" form:"body" binding:"required"`
+type UpdateCommentHandlerRequestBody struct {
+	Name string `json:"name" form:"name" binding:"required" validate:"required"`
+	Body string `json:"body" form:"body" binding:"required" validate:"required"`
 } // @name UpdateCommentRequest
 
 // Represent output data of UpdateCommentHandler
-type UpdateCommentResponseBody struct {
+type UpdateCommentHandlerResponseBody struct {
 	Comment *models.Comment `json:"comment" xml:"comment"`
 	Message string          `json:"message" xml:"message"`
 } // @name UpdateCommentResponse
@@ -35,12 +35,12 @@ type UpdateCommentResponseBody struct {
 // @Produce json
 // @Produce xml
 //
-// @Param fields body UpdateCommentRequestBody true "data"
+// @Param fields body UpdateCommentHandlerRequestBody true "data"
 //
-// @Success 200 	{object} UpdateCommentResponseBody
-// @Failure 400,404 {object} UpdateCommentResponseBody
-// @Failure 500 	{object} UpdateCommentResponseBody
-// @Failure default {object} UpdateCommentResponseBody
+// @Success 200 	{object} UpdateCommentHandlerResponseBody
+// @Failure 400,404 {object} UpdateCommentHandlerResponseBody
+// @Failure 500 	{object} UpdateCommentHandlerResponseBody
+// @Failure default {object} UpdateCommentHandlerResponseBody
 //
 // @Security ApiKeyAuth
 //
@@ -62,7 +62,7 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	commentId, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
-		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentResponseBody{
+		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentHandlerResponseBody{
 			Message: "failed to parse uuid",
 		})
 	}
@@ -70,15 +70,25 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 
 	// parse body data
 	logger.Infow("parsing request body")
-	var body CreateCommentRequestBody
+	var body UpdateCommentHandlerRequestBody
 	err = c.Bind(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
-		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentResponseBody{
+		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentHandlerResponseBody{
 			Message: "failed to parse request body",
 		})
 	}
 	logger = logger.With("body", body)
+
+	// validate body data
+	logger.Infow("validating request body")
+	err = cm.Validator.Struct(&body)
+	if err != nil {
+		logger.Errorw("failed to validate body", "err", err)
+		return cm.ResponseWriter(c, http.StatusBadRequest, UpdateCommentHandlerResponseBody{
+			Message: "failed to parse validate body",
+		})
+	}
 
 	// getting comment from database
 	var comment models.Comment
@@ -90,12 +100,12 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return cm.ResponseWriter(c, http.StatusNotFound, UpdateCommentResponseBody{
+			return cm.ResponseWriter(c, http.StatusNotFound, UpdateCommentHandlerResponseBody{
 				Message: "failed to find record with provided id",
 			})
 		}
 		logger.Errorw("failed to find comment record in database", "err", err)
-		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentResponseBody{
+		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentHandlerResponseBody{
 			Message: "failed to update comment",
 		})
 	}
@@ -105,7 +115,7 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	logger.Infow("checking if user is author a comment")
 	if token.UserID != comment.UserID {
 		logger.Errorw("user is not author of current comment", "err", err)
-		return cm.ResponseWriter(c, http.StatusForbidden, UpdateCommentResponseBody{
+		return cm.ResponseWriter(c, http.StatusForbidden, UpdateCommentHandlerResponseBody{
 			Message: "only author can change comment content",
 		})
 	}
@@ -118,14 +128,14 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		logger.Errorw("failed to update comment in database", "err", err)
-		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentResponseBody{
+		return cm.ResponseWriter(c, http.StatusInternalServerError, UpdateCommentHandlerResponseBody{
 			Message: "failed to update comment",
 		})
 	}
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := UpdateCommentResponseBody{
+	res := UpdateCommentHandlerResponseBody{
 		Comment: &comment,
 		Message: "successfully updated comment",
 	}

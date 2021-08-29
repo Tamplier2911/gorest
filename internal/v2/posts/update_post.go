@@ -12,8 +12,8 @@ import (
 
 // Represent input data of UpdatePostHandler
 type UpdatePostRequestBody struct {
-	Title string `json:"title" form:"title" binding:"required"`
-	Body  string `json:"body" form:"body" binding:"required"`
+	Title string `json:"title" form:"title" binding:"required" validate:"required"`
+	Body  string `json:"body" form:"body" binding:"required" validate:"required"`
 } // @name UpdatePostRequest
 
 // Represent output data of UpdatePostHandler

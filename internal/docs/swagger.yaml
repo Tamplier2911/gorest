@@ -9,6 +9,7 @@ definitions:
       name:
         type: string
       postId:
+        description: fk
         type: string
       userId:
         type: string
@@ -82,11 +83,17 @@ definitions:
     properties:
       body:
         type: string
+      comment:
+        description: one-to-many relation
+        items:
+          $ref: '#/definitions/Comment'
+        type: array
       id:
         type: string
       title:
         type: string
       userId:
+        description: fk
         type: string
     type: object
   UpdateCommentRequest:
@@ -148,12 +155,8 @@ definitions:
     properties:
       message:
         type: string
-      posts:
-        items:
-          $ref: '#/definitions/Post'
-        type: array
-      total:
-        type: integer
+      post:
+        $ref: '#/definitions/Post'
     type: object
 host: localhost:8000
 info:

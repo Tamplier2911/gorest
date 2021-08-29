@@ -11,9 +11,9 @@ import (
 
 // Represent input data of CreatePostHandler
 type CreatePostRequestBody struct {
-	UserID string `json:"userId" form:"userId" url:"userId" binding:"required"`
-	Title  string `json:"title" form:"title" url:"title" binding:"required"`
-	Body   string `json:"body" form:"body" url:"body" binding:"required"`
+	UserID string `json:"userId" form:"userId" url:"userId" binding:"required" validate:"required"`
+	Title  string `json:"title" form:"title" url:"title" binding:"required" validate:"required"`
+	Body   string `json:"body" form:"body" url:"body" binding:"required" validate:"required"`
 }
 
 // Represent output data of CreatePostHandler

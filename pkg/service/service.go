@@ -11,6 +11,7 @@ import (
 	"github.com/Tamplier2911/gorest/pkg/logger"
 	"github.com/labstack/echo/v4"
 
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -24,13 +25,15 @@ type Service struct {
 	Router *http.ServeMux
 
 	// optional
-	MySQL *gorm.DB
-	Echo  *echo.Echo
+	MySQL     *gorm.DB
+	Echo      *echo.Echo
+	Validator *validator.Validate
 }
 
 type InitializeOptions struct {
-	MySQL bool
-	Echo  bool
+	MySQL     bool
+	Echo      bool
+	Validator bool
 }
 
 func (s *Service) Initialize(options *InitializeOptions) {
@@ -78,6 +81,11 @@ func (s *Service) Initialize(options *InitializeOptions) {
 		s.Echo = echo.New()
 	}
 
+	// create validator
+	if options.Validator {
+		s.Logger.Infow("wiring validator")
+		s.Validator = validator.New()
+	}
 }
 
 func (s *Service) Start() {

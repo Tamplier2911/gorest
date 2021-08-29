@@ -10,8 +10,8 @@ import (
 
 // Represent input data of CreatePostHandler
 type CreatePostRequestBody struct {
-	Title string `json:"title" form:"title" binding:"required"`
-	Body  string `json:"body" form:"body" binding:"required"`
+	Title string `json:"title" form:"title" binding:"required" validate:"required"`
+	Body  string `json:"body" form:"body" binding:"required" validate:"required"`
 } // @name CreatePostRequest
 
 // Represent output data of CreatePostHandler

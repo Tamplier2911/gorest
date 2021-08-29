@@ -65,7 +65,7 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 		postUuid, err := uuid.Parse(query.PostID)
 		if err != nil {
 			logger.Errorw("failed to parse uuids from body", "err", err)
-			return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentResponseBody{
+			return cm.ResponseWriter(c, http.StatusBadRequest, GetCommentsHandlerResponseBody{
 				Message: "failed to parse uuids from body",
 			})
 		}
@@ -81,7 +81,7 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 		userUuid, err := uuid.Parse(query.UserID)
 		if err != nil {
 			logger.Errorw("failed to parse uuids from body", "err", err)
-			return cm.ResponseWriter(c, http.StatusBadRequest, CreateCommentResponseBody{
+			return cm.ResponseWriter(c, http.StatusBadRequest, GetCommentsHandlerResponseBody{
 				Message: "failed to parse uuids from body",
 			})
 		}

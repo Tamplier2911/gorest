@@ -11,20 +11,26 @@ import (
 	"time"
 
 	"github.com/gorilla/schema"
-	"github.com/labstack/echo/v4"
 )
 
 // TestClient provides a wrapper for communication with endpoints.
 type TestClient struct {
-	http    *http.Client
-	router  *echo.Echo
+	http *http.Client
+	// router  *echo.Echo
+	router  Router
 	encoder *schema.Encoder
 	token   string
 }
 
+// Router provides behavior interface for router object.
+type Router interface {
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
+}
+
 // Options is used to parameterize new TestClient instance.
 type Options struct {
-	Router *echo.Echo
+	// Router *echo.Echo
+	Router Router
 	Token  string
 }
 
@@ -91,7 +97,7 @@ func (t *TestClient) Request(options *RequestOptions) error {
 		return fmt.Errorf("failed to send request, %s", err)
 	}
 
-	// set response encoding type
+	// set request encoding type
 	request.Header.Add("Content-type", "application/json")
 	// if token provided set auth header
 	if t.token != "" {
