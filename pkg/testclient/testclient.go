@@ -17,20 +17,22 @@ import (
 type TestClient struct {
 	http *http.Client
 	// router  *echo.Echo
-	router  Router
+	// router  Router
+	router  http.Handler
 	encoder *schema.Encoder
 	token   string
 }
 
 // Router provides behavior interface for router object.
-type Router interface {
-	ServeHTTP(w http.ResponseWriter, r *http.Request)
-}
+// type Router interface {
+// 	ServeHTTP(w http.ResponseWriter, r *http.Request)
+// }
 
 // Options is used to parameterize new TestClient instance.
 type Options struct {
 	// Router *echo.Echo
-	Router Router
+	// Router Router
+	Router http.Handler
 	Token  string
 }
 

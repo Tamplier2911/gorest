@@ -68,6 +68,7 @@ func (p *Posts) DeletePostHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
+			logger.Errorw("failed to find post record in database with provided id", "err", err)
 			return p.ResponseWriter(c, http.StatusNotFound, DeletePostHandlerResponseBody{
 				Message: "failed to find record with provided id",
 			})

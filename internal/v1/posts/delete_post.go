@@ -7,20 +7,25 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Represent output data of DeletePostHandler
 type DeletePostHandlerResponseBody struct {
 	Message string `json:"message" xml:"message"`
-}
+} // @name DeletePostResponse
 
 // Deletes post by provided id from database
 func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.Logger.Named("DeletePostsHandler")
 
-	// TODO: consider abstracting this to a middleware
+	// get token from context
+	token := r.Context().Value("token").(*access.Token)
+	logger = logger.With("token", token)
 
 	// get id from path
 	logger.Infow("getting id from path")
@@ -44,15 +49,44 @@ func (p *Posts) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("uid", uid)
 
+	// get post from database
+	var post models.Post
+	logger.Infow("getting post from database")
+	err = p.MySQL.
+		Model(&models.Post{}).
+		Where(&models.Post{Base: models.Base{ID: uid}}).
+		First(&post).
+		Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logger.Errorw("failed to find post record in database with provided id", "err", err)
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		logger.Errorw("failed to find post record in database", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	logger = logger.With("post", post)
+
+	// check if user is post author
+	logger.Infow("checking if user is author a post")
+	if token.UserID != post.UserID {
+		logger.Errorw("user is not author of current post", "err", err)
+		err := errors.New("user is not author of current post")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// delete post from database
 	logger.Infow("deleting post from database")
-	result := p.MySQL.Model(&models.Post{}).Delete(&models.Post{Base: models.Base{ID: uid}})
-	if result.Error != nil || result.RowsAffected == 0 {
-		if result.Error == nil {
-			result.Error = errors.New("record not found")
-		}
-		logger.Errorw("failed to delete post with provided id from database", "err", err)
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+	err = p.MySQL.
+		Select(clause.Associations).
+		Delete(&post).
+		Error
+	if err != nil {
+		logger.Errorw("failed to delete post record from database", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

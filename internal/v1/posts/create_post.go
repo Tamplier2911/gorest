@@ -5,30 +5,33 @@ import (
 	"encoding/xml"
 	"net/http"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
-	"github.com/google/uuid"
 )
 
 // Represent input data of CreatePostHandler
-type CreatePostRequestBody struct {
-	UserID string `json:"userId" form:"userId" url:"userId" binding:"required" validate:"required"`
-	Title  string `json:"title" form:"title" url:"title" binding:"required" validate:"required"`
-	Body   string `json:"body" form:"body" url:"body" binding:"required" validate:"required"`
-}
+type CreatePostHandlerRequestBody struct {
+	Title string `json:"title" form:"title" url:"title" binding:"required" validate:"required"`
+	Body  string `json:"body" form:"body" url:"body" binding:"required" validate:"required"`
+} // @CreatePostResponse
 
 // Represent output data of CreatePostHandler
-type CreatePostResponseBody struct {
+type CreatePostHandlerResponseBody struct {
 	Post    *models.Post `json:"post" xml:"post"`
 	Message string       `json:"message" xml:"message"`
-}
+} // @CreatePostRequest
 
 // Creates post instance and stores it in database
 func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.Logger.Named("CreatePostHandler")
 
+	// get token from context
+	token := r.Context().Value("token").(*access.Token)
+	logger = logger.With("token", token)
+
 	// parse body data
 	logger.Infow("parsing request body")
-	var body CreatePostRequestBody
+	var body CreatePostHandlerRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		logger.Errorw("failed to parse request body", "err", err)
@@ -37,20 +40,19 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger = logger.With("body", body)
 
-	// parse uuid id
-	logger.Infow("parsing uuid from body")
-	uid, err := uuid.Parse(string(body.UserID))
+	// validate body data
+	logger.Infow("validating request body")
+	err = p.Validator.Struct(&body)
 	if err != nil {
-		logger.Errorw("failed to parse uuid from body", "err", err)
+		logger.Errorw("failed to validate body", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger = logger.With("uid", uid)
 
 	// save instance of post in database
 	logger.Infow("saving post to database")
 	post := models.Post{
-		UserID: uid,
+		UserID: token.UserID,
 		Title:  body.Title,
 		Body:   body.Body,
 	}
@@ -63,7 +65,7 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// assemble response body
 	logger.Infow("assembling response body")
-	res := CreatePostResponseBody{
+	res := CreatePostHandlerResponseBody{
 		Post:    &post,
 		Message: "successfully created post",
 	}

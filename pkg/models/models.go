@@ -123,3 +123,9 @@ const (
 // 	MustString("name", &b).
 // 	MustString("body", &z).
 // 	BindError()
+
+// TODO: remove auth routes mocks
+// https://stackoverflow.com/questions/43240970/how-to-mock-http-client-do-method
+// https://dou.ua/lenta/articles/golang-httptest/
+// https://dev.to/clavinjune/mocking-http-call-in-golang-15i5
+// https://olegcodes.medium.com/mocking-http-services-in-go-6b76215a81c9

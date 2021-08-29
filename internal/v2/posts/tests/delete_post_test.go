@@ -78,7 +78,7 @@ func TestDeletePostHandler(t *testing.T) {
 		require.NoError(t, err, "failed to delete post")
 	})
 
-	t.Run("post should be deleted from", func(t *testing.T) {
+	t.Run("post should be deleted from database", func(t *testing.T) {
 		var post models.Post
 		err := m.MySQL.
 			Model(&models.Post{}).

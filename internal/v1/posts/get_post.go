@@ -16,13 +16,11 @@ import (
 type GetPostHandlerResponseBody struct {
 	Post    *models.Post `json:"post" xml:"posts"`
 	Message string       `json:"message" xml:"message"`
-}
+} // @name GetPostResponse
 
 // Gets post by provided id from database, returns posts
 func (p *Posts) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	logger := p.Logger.Named("GetPostHandler")
-
-	// TODO: consider abstracting this to a middleware
 
 	// get id from path
 	logger.Infow("getting id from path")

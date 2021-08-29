@@ -12,10 +12,10 @@ import (
 
 // Represent output data of GetPostsHandler
 type GetPostsHandlerResponseBody struct {
-	Posts   []models.Post `json:"posts" xml:"posts"`
-	Total   int64         `json:"total" xml:"total"`
-	Message string        `json:"message" xml:"message"`
-}
+	Posts   *[]models.Post `json:"posts" xml:"posts"`
+	Total   int64          `json:"total" xml:"total"`
+	Message string         `json:"message" xml:"message"`
+} // @name GetPostResponse
 
 // Get all posts from database, takes limit and offset query parameters, returns posts
 func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,8 +23,6 @@ func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// define db statement
 	stmt := p.MySQL.Model(&models.Post{})
-
-	// TODO: consider refactoring that
 
 	// get limit from query parameters
 	limit := r.FormValue("limit")
@@ -73,7 +71,7 @@ func (p *Posts) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// assemble response body
 	logger.Infow("assembling response body")
 	res := GetPostsHandlerResponseBody{
-		Posts:   posts,
+		Posts:   &posts,
 		Total:   total,
 		Message: "successfully retrieved posts",
 	}

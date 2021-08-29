@@ -100,6 +100,7 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
+			logger.Errorw("failed to find post record in database with provided id", "err", err)
 			return p.ResponseWriter(c, http.StatusNotFound, UpdatePostHandlerResponseBody{
 				Message: "failed to find record with provided id",
 			})

@@ -67,6 +67,7 @@ func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
+			logger.Errorw("failed to find comment record in database with provided id", "err", err)
 			return cm.ResponseWriter(c, http.StatusNotFound, DeleteCommentHandlerResponseBody{
 				Message: "failed to find record with provided id",
 			})

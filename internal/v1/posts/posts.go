@@ -19,7 +19,7 @@ func (p Posts) Setup(s *service.Service) {
 		case http.MethodGet:
 			p.GetPostsHandler(w, r)
 		case http.MethodPost:
-			p.CreatePostHandler(w, r)
+			service.AuthWrapperDP(p.CreatePostHandler, p.Logger, p.Config, w, r)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -30,9 +30,9 @@ func (p Posts) Setup(s *service.Service) {
 		case http.MethodGet:
 			p.GetPostHandler(w, r)
 		case http.MethodPut:
-			p.UpdatePostHandler(w, r)
+			service.AuthWrapperDP(p.UpdatePostHandler, p.Logger, p.Config, w, r)
 		case http.MethodDelete:
-			p.DeletePostHandler(w, r)
+			service.AuthWrapperDP(p.DeletePostHandler, p.Logger, p.Config, w, r)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
