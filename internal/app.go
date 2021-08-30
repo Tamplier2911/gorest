@@ -13,12 +13,12 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-type Monolith struct {
+type Application struct {
 	service.Service
 }
 
-func (m *Monolith) Setup() {
-	m.Initialize(&service.InitializeOptions{
+func (a *Application) Setup() {
+	a.Initialize(&service.InitializeOptions{
 		MySQL:     true,
 		Echo:      true,
 		Validator: true,
@@ -27,38 +27,37 @@ func (m *Monolith) Setup() {
 	// default port '8080' || export GOREST_PORT='8080' || m.Server.Addr = ":3000"
 
 	// automigrate models
-	m.Logger.Info("automigrating models")
-	err := m.MySQL.AutoMigrate(
+	a.Logger.Info("automigrating models")
+	err := a.MySQL.AutoMigrate(
 		&models.User{},
 		&models.AuthProvider{},
 		&models.Post{},
 		&models.Comment{},
 	)
 	if err != nil {
-		m.Logger.Fatalw("failed to automigrate models", "err", err)
+		a.Logger.Fatalw("failed to automigrate models", "err", err)
 	}
 
 	// /swagger/index.html
-	m.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
+	a.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// /api/v1/posts
-	v1posts.Posts{}.Setup(&m.Service)
+	v1posts.Posts{}.Setup(&a.Service)
 	// /api/v1/comments
-	v1comments.Comments{}.Setup(&m.Service)
+	v1comments.Comments{}.Setup(&a.Service)
 
 	// /api/v2/auth
-	auth.Auth{}.Setup(&m.Service)
+	auth.Auth{}.Setup(&a.Service)
 	// /api/v2/posts
-	posts.Posts{}.Setup(&m.Service)
+	posts.Posts{}.Setup(&a.Service)
 	// /api/v2/comments
-	comments.Comments{}.Setup(&m.Service)
+	comments.Comments{}.Setup(&a.Service)
 }
 
 // TODO:
-// implement test client
-// implement test for local endpoints
 // implement stubs for foreign endpoints
 // implement tests for foreign endpoints
+
 // repeat both files
 // complete test
 // enjoy level three

@@ -31,8 +31,8 @@ type TestFixturesData struct {
 // CommentsTestFixtures return instance of fixture.
 func CommentsTestFixtures() Fixture {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// test users
 	var testUsers []models.User
@@ -55,7 +55,7 @@ func CommentsTestFixtures() Fixture {
 				UserRole: models.UserRoleUser,
 			},
 		}
-		err := m.MySQL.Create(&testUsers).Error
+		err := a.MySQL.Create(&testUsers).Error
 		if err != nil {
 			return TestFixturesData{}, err
 		}
@@ -73,7 +73,7 @@ func CommentsTestFixtures() Fixture {
 				Body:   "test post 1",
 			},
 		}
-		err = m.MySQL.Create(&testPosts).Error
+		err = a.MySQL.Create(&testPosts).Error
 		if err != nil {
 			return TestFixturesData{}, err
 		}
@@ -129,7 +129,7 @@ func CommentsTestFixtures() Fixture {
 				Body:   "comment 8",
 			},
 		}
-		err = m.MySQL.Create(&testComments).Error
+		err = a.MySQL.Create(&testComments).Error
 		if err != nil {
 			return TestFixturesData{}, err
 		}
@@ -171,19 +171,19 @@ func CommentsTestFixtures() Fixture {
 
 	teardown := func() error {
 		// clean up test comments
-		err := m.MySQL.Unscoped().Delete(&testComments).Error
+		err := a.MySQL.Unscoped().Delete(&testComments).Error
 		if err != nil {
 			return err
 		}
 
 		// clean up test posts
-		err = m.MySQL.Unscoped().Delete(&testPosts).Error
+		err = a.MySQL.Unscoped().Delete(&testPosts).Error
 		if err != nil {
 			return err
 		}
 
 		// clean up test users
-		err = m.MySQL.Unscoped().Delete(&testUsers).Error
+		err = a.MySQL.Unscoped().Delete(&testUsers).Error
 		if err != nil {
 			return err
 		}

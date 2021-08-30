@@ -14,8 +14,8 @@ import (
 
 func TestGetCommentHandler(t *testing.T) {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// init test fixtures
 	fixture := CommentsTestFixtures()
@@ -25,10 +25,10 @@ func TestGetCommentHandler(t *testing.T) {
 	// init test client
 	testClient := testclient.TestClient{}
 	testClient.Setup(&testclient.Options{
-		Router: m.Router,
+		Router: a.Router,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: testData.TestUserOneID,
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	defer func() {

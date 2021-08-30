@@ -15,8 +15,8 @@ import (
 
 func TestDeletePostHandler(t *testing.T) {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// init test fixtures
 	fixture := PostsTestFixtures()
@@ -26,18 +26,18 @@ func TestDeletePostHandler(t *testing.T) {
 	// init test client
 	authorClient := testclient.TestClient{}
 	authorClient.Setup(&testclient.Options{
-		Router: m.Echo,
+		Router: a.Echo,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: testData.TestUserOneID,
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	notAuthorClient := testclient.TestClient{}
 	notAuthorClient.Setup(&testclient.Options{
-		Router: m.Echo,
+		Router: a.Echo,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: testData.TestUserTwoID,
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	defer func() {
@@ -80,7 +80,7 @@ func TestDeletePostHandler(t *testing.T) {
 
 	t.Run("post should be deleted from database", func(t *testing.T) {
 		var post models.Post
-		err := m.MySQL.
+		err := a.MySQL.
 			Model(&models.Post{}).
 			Where(&models.Post{Base: models.Base{ID: testData.TestPostOneUserOneID}}).
 			First(&post).

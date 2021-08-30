@@ -25,8 +25,8 @@ type TestFixturesData struct {
 // PostsTestFixtures return instance of fixture.
 func PostsTestFixtures() Fixture {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// test users
 	var testUsers []models.User
@@ -47,7 +47,7 @@ func PostsTestFixtures() Fixture {
 				UserRole: models.UserRoleUser,
 			},
 		}
-		err := m.MySQL.Create(&testUsers).Error
+		err := a.MySQL.Create(&testUsers).Error
 		if err != nil {
 			return TestFixturesData{}, err
 		}
@@ -95,7 +95,7 @@ func PostsTestFixtures() Fixture {
 				Body:   "test post 8",
 			},
 		}
-		err = m.MySQL.Create(&testPosts).Error
+		err = a.MySQL.Create(&testPosts).Error
 		if err != nil {
 			return TestFixturesData{}, err
 		}
@@ -112,13 +112,13 @@ func PostsTestFixtures() Fixture {
 
 	teardown := func() error {
 		// clean up test posts
-		err := m.MySQL.Unscoped().Delete(&testPosts).Error
+		err := a.MySQL.Unscoped().Delete(&testPosts).Error
 		if err != nil {
 			return err
 		}
 
 		// clean up test users
-		err = m.MySQL.Unscoped().Delete(&testUsers).Error
+		err = a.MySQL.Unscoped().Delete(&testUsers).Error
 		if err != nil {
 			return err
 		}

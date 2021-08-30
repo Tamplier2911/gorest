@@ -14,8 +14,8 @@ import (
 
 func TestCreatePostHandler(t *testing.T) {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// init test fixtures
 	fixture := PostsTestFixtures()
@@ -25,18 +25,18 @@ func TestCreatePostHandler(t *testing.T) {
 	// init test client
 	testClient := testclient.TestClient{}
 	testClient.Setup(&testclient.Options{
-		Router: m.Echo,
+		Router: a.Echo,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: testData.TestUserOneID,
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	unauthorizedClient := testclient.TestClient{}
 	unauthorizedClient.Setup(&testclient.Options{
-		Router: m.Echo,
+		Router: a.Echo,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: uuid.New(),
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	defer func() {
@@ -106,7 +106,7 @@ func TestCreatePostHandler(t *testing.T) {
 
 	t.Run("post should be saved in database", func(t *testing.T) {
 		var post models.Post
-		err := m.MySQL.
+		err := a.MySQL.
 			Model(&models.Post{}).
 			Where(&models.Post{Base: models.Base{ID: newPostId}}).
 			First(&post).

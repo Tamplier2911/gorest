@@ -15,8 +15,8 @@ import (
 
 func TestUpdateCommentHandler(t *testing.T) {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// init test fixtures
 	fixture := CommentsTestFixtures()
@@ -26,18 +26,18 @@ func TestUpdateCommentHandler(t *testing.T) {
 	// init test client
 	authorClient := testclient.TestClient{}
 	authorClient.Setup(&testclient.Options{
-		Router: m.Echo,
+		Router: a.Echo,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: testData.TestUserOneID,
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	notAuthorClient := testclient.TestClient{}
 	notAuthorClient.Setup(&testclient.Options{
-		Router: m.Echo,
+		Router: a.Echo,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: uuid.New(),
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	defer func() {
@@ -135,7 +135,7 @@ func TestUpdateCommentHandler(t *testing.T) {
 
 	t.Run("comment updated in database", func(t *testing.T) {
 		var comment models.Comment
-		err := m.MySQL.
+		err := a.MySQL.
 			Model(&models.Comment{}).
 			Where(&models.Comment{Base: models.Base{ID: testData.TestUserOneCommentOneID}}).
 			First(&comment).

@@ -14,8 +14,8 @@ import (
 
 func TestCreateCommentHandler(t *testing.T) {
 	// init service
-	m := app.Monolith{}
-	m.Setup()
+	a := app.Application{}
+	a.Setup()
 
 	// init test fixtures
 	fixture := CommentsTestFixtures()
@@ -25,18 +25,18 @@ func TestCreateCommentHandler(t *testing.T) {
 	// init test client
 	testClient := testclient.TestClient{}
 	testClient.Setup(&testclient.Options{
-		Router: m.Router,
+		Router: a.Router,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: testData.TestUserOneID,
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	unauthorizedClient := testclient.TestClient{}
 	unauthorizedClient.Setup(&testclient.Options{
-		Router: m.Router,
+		Router: a.Router,
 		Token: access.MustEncodeToken(&access.Token{
 			UserID: uuid.New(),
-		}, m.Config.HMACSecret),
+		}, a.Config.HMACSecret),
 	})
 
 	defer func() {
@@ -139,7 +139,7 @@ func TestCreateCommentHandler(t *testing.T) {
 
 	t.Run("comment should be saved in database", func(t *testing.T) {
 		var comment models.Comment
-		err := m.MySQL.
+		err := a.MySQL.
 			Model(&models.Comment{}).
 			Where(&models.Comment{Base: models.Base{ID: newCommentID}}).
 			First(&comment).
