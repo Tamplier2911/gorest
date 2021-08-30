@@ -142,6 +142,6 @@ func (p *Posts) UpdatePostHandler(c echo.Context) error {
 	}
 	logger = logger.With("res", res)
 
-	logger.Debugw("successfully updated post in database")
+	logger.Infow("successfully updated post in database")
 	return p.ResponseWriter(c, http.StatusOK, res)
 }

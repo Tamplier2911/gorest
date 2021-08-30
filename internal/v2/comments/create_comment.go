@@ -113,6 +113,6 @@ func (cm *Comments) CreateCommentHandler(c echo.Context) error {
 	}
 	logger = logger.With("res", res)
 
-	logger.Debugw("successfully created comment record in database")
+	logger.Infow("successfully created comment record in database")
 	return cm.ResponseWriter(c, http.StatusCreated, res)
 }

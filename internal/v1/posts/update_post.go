@@ -152,6 +152,6 @@ func (p *Posts) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.WriteHeader(http.StatusOK)
 
-	logger.Debugw("successfully updated post in database")
+	logger.Infow("successfully updated post in database")
 	w.Write(b)
 }

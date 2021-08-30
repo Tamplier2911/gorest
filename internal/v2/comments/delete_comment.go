@@ -90,8 +90,8 @@ func (cm *Comments) DeleteCommentHandler(c echo.Context) error {
 
 	// delete comment from database
 	logger.Infow("deleting comment from database")
-	result := cm.MySQL.Delete(&comment)
-	if result.Error != nil || result.RowsAffected == 0 {
+	err = cm.MySQL.Delete(&comment).Error
+	if err != nil {
 		logger.Errorw("failed to delete comment with provided id from database", "err", err)
 		return cm.ResponseWriter(c, http.StatusInternalServerError, DeleteCommentHandlerResponseBody{
 			Message: "failed to delete comment",

@@ -97,6 +97,6 @@ func (p *Posts) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	// write headers
 	w.WriteHeader(http.StatusCreated)
 
-	logger.Debugw("successfully created post record in database")
+	logger.Infow("successfully created post record in database")
 	w.Write(b)
 }

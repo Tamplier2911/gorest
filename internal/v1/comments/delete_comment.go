@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tamplier2911/gorest/pkg/access"
 	"github.com/Tamplier2911/gorest/pkg/models"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // Represent output data of DeleteCommentHandler
@@ -20,7 +22,9 @@ type DeleteCommentHandlerResponseBody struct {
 func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 	logger := c.Logger.Named("DeleteCommentHandler")
 
-	// TODO: consider abstracting this to a middleware
+	// get token from context
+	token := r.Context().Value("token").(*access.Token)
+	logger = logger.With("token", token)
 
 	// get id from path
 	logger.Infow("getting id from path")
@@ -36,23 +40,49 @@ func (c *Comments) DeleteCommentHandler(w http.ResponseWriter, r *http.Request) 
 
 	// parse uuid
 	logger.Infow("parsing uuid from path")
-	uid, err := uuid.Parse(id)
+	commentUuid, err := uuid.Parse(id)
 	if err != nil {
 		logger.Errorw("failed to parse uuid", "err", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger = logger.With("uid", uid)
+	logger = logger.With("commentUuid", commentUuid)
+
+	// getting comment from database
+	var comment models.Comment
+	logger.Infow("getting comment from database")
+	err = c.MySQL.
+		Model(&models.Comment{}).
+		Where(&models.Comment{Base: models.Base{ID: commentUuid}}).
+		First(&comment).
+		Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logger.Errorw("failed to find comment record in database with provided id", "err", err)
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		logger.Errorw("failed to find comment record in database", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	logger = logger.With("comment", comment)
+
+	// check if user is comment author
+	logger.Infow("checking if user is author a comment")
+	if token.UserID != comment.UserID {
+		logger.Errorw("user is not author of current comment", "err", err)
+		err := errors.New("user is not author of current comment")
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
 
 	// delete comment from database
 	logger.Infow("deleting comment from database")
-	result := c.MySQL.Model(&models.Comment{}).Delete(&models.Comment{Base: models.Base{ID: uid}})
-	if result.Error != nil || result.RowsAffected == 0 {
-		if result.Error == nil {
-			result.Error = errors.New("record not found")
-		}
+	err = c.MySQL.Delete(&comment).Error
+	if err != nil {
 		logger.Errorw("failed to delete comment with provided id from database", "err", err)
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

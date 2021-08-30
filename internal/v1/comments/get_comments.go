@@ -7,15 +7,16 @@ import (
 	"strconv"
 
 	"github.com/Tamplier2911/gorest/pkg/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm/clause"
 )
 
 // Represent output data of GetCommentsHandler
 type GetCommentsHandlerResponseBody struct {
-	Comments []models.Comment `json:"comments" xml:"comments"`
-	Total    int64            `json:"total" xml:"total"`
-	Message  string           `json:"message" xml:"message"`
-}
+	Comments *[]models.Comment `json:"comments" xml:"comments"`
+	Total    int64             `json:"total" xml:"total"`
+	Message  string            `json:"message" xml:"message"`
+} // @name GetCommentsResponse
 
 // Get all comments from database, takes limit and offset query parameters, returns comments
 func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
@@ -24,34 +25,62 @@ func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	// define db statement
 	stmt := c.MySQL.Model(&models.Comment{})
 
-	// TODO: consider refactoring that
-
+	limit := 10
 	// get limit from query parameters
-	limit := r.FormValue("limit")
-	if limit != "" {
+	lmt := r.FormValue("limit")
+	if lmt != "" {
 		logger.Infow("parsing limit query")
-		lm, err := strconv.Atoi(limit)
+		lmtInt, err := strconv.Atoi(lmt)
 		if err != nil {
-			logger.Infow("invalid limit query")
-			stmt.Limit(10)
-		} else {
-			stmt.Limit(lm)
-			logger = logger.With("limit", lm)
+			logger.Infow("invalid limit in query")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
+		logger = logger.With("limit", limit)
+		limit = lmtInt
 	}
 
+	offset := 10
 	// get offset from query parameters
-	offset := r.FormValue("offset")
-	if offset != "" {
+	ofst := r.FormValue("offset")
+	if ofst != "" {
 		logger.Infow("parsing offset query")
-		of, err := strconv.Atoi(offset)
+		ofstInt, err := strconv.Atoi(ofst)
 		if err != nil {
-			logger.Infow("invalid offset query")
-			stmt.Offset(0)
-		} else {
-			stmt.Offset(of)
-			logger = logger.With("offset", of)
+			logger.Infow("invalid offset in query")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
+		logger = logger.With("offset", offset)
+		offset = ofstInt
+	}
+
+	// get post id from query parameters
+	postId := r.FormValue("postId")
+	if postId != "" {
+		logger.Infow("parsing post id query")
+		postUuid, err := uuid.Parse(postId)
+		if err != nil {
+			logger.Errorw("failed to parse uuid from body", "err", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// add clause to statement
+		stmt.Where(&models.Comment{PostID: postUuid})
+	}
+
+	// get user id from query parameters
+	userId := r.FormValue("userId")
+	if userId != "" {
+		logger.Infow("parsing user id query")
+		userUuid, err := uuid.Parse(userId)
+		if err != nil {
+			logger.Errorw("failed to parse uuid from body", "err", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// add clause to statement
+		stmt.Where(&models.Comment{UserID: userUuid})
 	}
 
 	// retreive comments from database
@@ -61,6 +90,8 @@ func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	err := stmt.
 		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
+		Limit(limit).
+		Offset(offset).
 		Find(&comments).
 		Error
 	if err != nil {
@@ -73,7 +104,7 @@ func (c *Comments) GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	// assemble response body
 	logger.Infow("assembling response body")
 	res := GetCommentsHandlerResponseBody{
-		Comments: comments,
+		Comments: &comments,
 		Total:    total,
 		Message:  "successfully retrieved comments",
 	}

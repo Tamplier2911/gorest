@@ -15,23 +15,14 @@ import (
 
 // TestClient provides a wrapper for communication with endpoints.
 type TestClient struct {
-	http *http.Client
-	// router  *echo.Echo
-	// router  Router
+	http    *http.Client
 	router  http.Handler
 	encoder *schema.Encoder
 	token   string
 }
 
-// Router provides behavior interface for router object.
-// type Router interface {
-// 	ServeHTTP(w http.ResponseWriter, r *http.Request)
-// }
-
 // Options is used to parameterize new TestClient instance.
 type Options struct {
-	// Router *echo.Echo
-	// Router Router
 	Router http.Handler
 	Token  string
 }

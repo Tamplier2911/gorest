@@ -19,7 +19,7 @@ func (c Comments) Setup(s *service.Service) {
 		case http.MethodGet:
 			c.GetCommentsHandler(w, r)
 		case http.MethodPost:
-			c.CreateCommentHandler(w, r)
+			service.AuthWrapperDP(c.CreateCommentHandler, c.Logger, c.Config, w, r)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -30,9 +30,9 @@ func (c Comments) Setup(s *service.Service) {
 		case http.MethodGet:
 			c.GetCommentHandler(w, r)
 		case http.MethodPut:
-			c.UpdateCommentHandler(w, r)
+			service.AuthWrapperDP(c.UpdateCommentHandler, c.Logger, c.Config, w, r)
 		case http.MethodDelete:
-			c.DeleteCommentHandler(w, r)
+			service.AuthWrapperDP(c.DeleteCommentHandler, c.Logger, c.Config, w, r)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}

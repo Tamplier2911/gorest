@@ -101,7 +101,8 @@ func (cm *Comments) GetCommentsHandler(c echo.Context) error {
 	logger.Infow("getting comments from database")
 	var total int64
 	var comments []models.Comment
-	err = stmt.Count(&total).
+	err = stmt.
+		Count(&total).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "created_at"}, Desc: true}).
 		Limit(limit).
 		Offset(query.Offset).

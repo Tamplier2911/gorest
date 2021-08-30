@@ -16,13 +16,11 @@ import (
 type GetCommentHandlerResponseBody struct {
 	Comment *models.Comment `json:"comment" xml:"comment"`
 	Message string          `json:"message" xml:"message"`
-}
+} // @name GetCommentResponse
 
 // Gets comment by provided id from database, returns comment
 func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	logger := c.Logger.Named("GetCommentHandler")
-
-	// TODO: consider abstracting this to a middleware
 
 	// get id from path
 	logger.Infow("getting id from path")
@@ -49,7 +47,11 @@ func (c *Comments) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	// retreive comment from database
 	logger.Infow("getting comment from database")
 	var comment models.Comment
-	err = c.MySQL.Model(&models.Comment{}).Where(&models.Comment{Base: models.Base{ID: uid}}).First(&comment).Error
+	err = c.MySQL.
+		Model(&models.Comment{}).
+		Where(&models.Comment{Base: models.Base{ID: uid}}).
+		First(&comment).
+		Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Errorw("failed to find comment with provided id in database", "err", err)

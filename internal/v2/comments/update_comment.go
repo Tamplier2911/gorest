@@ -142,6 +142,6 @@ func (cm *Comments) UpdateCommentHandler(c echo.Context) error {
 	}
 	logger = logger.With("res", res)
 
-	logger.Debugw("successfully updated comment in database")
+	logger.Infow("successfully updated comment in database")
 	return cm.ResponseWriter(c, http.StatusOK, res)
 }
