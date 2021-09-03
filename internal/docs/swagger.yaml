@@ -83,17 +83,19 @@ definitions:
     properties:
       body:
         type: string
-      comment:
-        description: one-to-many relation
-        items:
-          $ref: '#/definitions/Comment'
-        type: array
       id:
         type: string
       title:
         type: string
       userId:
         description: fk
+        type: string
+    type: object
+  RefreshTokenResponse:
+    properties:
+      message:
+        type: string
+      token:
         type: string
     type: object
   UpdateCommentRequest:
@@ -326,6 +328,43 @@ paths:
           schema:
             type: string
       summary: Login with google.
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      description: Validate user token and produce token with prolonged expire data.
+      operationId: RefreshToken
+      produces:
+      - application/json
+      - text/xml
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/RefreshTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RefreshTokenResponse'
+        "403":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RefreshTokenResponse'
+        "404":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RefreshTokenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RefreshTokenResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/RefreshTokenResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Refreshes token.
       tags:
       - Auth
   /comments:
