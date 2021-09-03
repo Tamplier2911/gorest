@@ -61,6 +61,9 @@ func (a Auth) Setup(s *service.Service) {
 	GithubAuthRouter := a.Echo.Group("/api/v2/auth/github")
 	GithubAuthRouter.GET("/login", a.GithubLoginHandler)
 	GithubAuthRouter.GET("/callback", a.GithubCallbackHandler)
+
+	AuthRouter := a.Echo.Group("/api/v2/auth")
+	AuthRouter.GET("/refresh", service.AuthenticationMiddleware(a.Logger, a.Config, a.RefreshTokenHandler))
 }
 
 // Writes response based on accept header

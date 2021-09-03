@@ -42,12 +42,19 @@ func (t *TestClient) Setup(options *Options) {
 
 // RequestOptions is used to parameterize Request.
 type RequestOptions struct {
-	Method   string
-	URL      string
-	Query    interface{}
-	Body     interface{}
-	Headers  map[string]string
-	Response interface{}
+	Method          string
+	URL             string
+	Query           interface{}
+	Body            interface{}
+	Headers         map[string]string
+	Response        interface{}
+	DefaultResponse *DefaultResponse
+}
+
+// DefaultResponse is used to represent default response data if interface was not provided
+type DefaultResponse struct {
+	Status  int
+	Message string
 }
 
 // Request provides generic method for http sending requests to API and parsing response body.
@@ -111,11 +118,21 @@ func (t *TestClient) Request(options *RequestOptions) error {
 	// if ok
 	if recorder.Code >= 200 && recorder.Code < 300 {
 		// unmarshal result string into output
-		err = json.Unmarshal([]byte(bodyString), &options.Response)
+		err := json.Unmarshal([]byte(bodyString), &options.Response)
 		if err != nil {
 			return fmt.Errorf("failed to unmarshal body, %s, %s", bodyString, err)
 		}
 
+		return nil
+	}
+
+	// if info
+	if recorder.Code >= 300 && recorder.Code <= 400 && options.DefaultResponse != nil {
+		// respond with default response
+		*options.DefaultResponse = DefaultResponse{
+			Status:  recorder.Code,
+			Message: "success",
+		}
 		return nil
 	}
 

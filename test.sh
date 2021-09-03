@@ -6,7 +6,7 @@ echo "Testing 2nd version of API" \
 && go test -v \
 && cd ../../comments/tests \
 && go test -v \
-&& echo "Testing 2st version of API" \
+&& echo "Testing 1st version of API" \
 && cd ../../../v1/posts/tests \
 && go test -v \
 && cd ../../comments/tests \

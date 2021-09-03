@@ -53,11 +53,3 @@ func (a *Application) Setup() {
 	// /api/v2/comments
 	comments.Comments{}.Setup(&a.Service)
 }
-
-// TODO:
-// implement stubs for foreign endpoints
-// implement tests for foreign endpoints
-
-// repeat both files
-// complete test
-// enjoy level three

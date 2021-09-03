@@ -220,7 +220,7 @@ func (a *Auth) GoogleCallbackHandler(c echo.Context) error {
 	logger = logger.With("jwt token", jwt)
 
 	logger.Infow("successfully logged in")
-	return a.ResponseWriter(c, http.StatusInternalServerError, GoogleCallbackHandlerResponseBody{
+	return a.ResponseWriter(c, http.StatusOK, GoogleCallbackHandlerResponseBody{
 		Token:   &jwt,
 		Message: "successfully logged in",
 	})

@@ -98,7 +98,7 @@ func AuthWrapperDP(
 
 	// save token to context
 	logger.Infow("saving token to context", "decodedToken", decodedToken)
-	ctx := context.WithValue(r.Context(), "token", decodedToken) //lint:ignore SA1029 deprecated module
+	ctx := context.WithValue(r.Context(), "token", decodedToken) //lint:ignore SA1029 deprecated wrapper
 
 	// success, pass context to next middleware
 	logger.Infow("successfully authenticated request", "decodedToken", decodedToken)

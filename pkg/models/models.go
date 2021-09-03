@@ -26,9 +26,9 @@ type User struct {
 	AvatarURL string   `json:"avatarUrl" xml:"avatarurl" gorm:"column:avatar_url;"`
 
 	// one-to-many relations
-	Post         []Post         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
-	Comment      []Comment      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
-	AuthProvider []AuthProvider `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
+	Post         []Post         `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
+	Comment      []Comment      `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
+	AuthProvider []AuthProvider `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
 } // @name User
 
 type AuthProvider struct {
@@ -38,7 +38,7 @@ type AuthProvider struct {
 	UserID uuid.UUID `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
 
 	ProviderUID      string           `json:"providerUid" xml:"providerUid" gorm:"column:provider_uid;index;not null"`
-	RefreshToken     string           `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:char(255);index;not null"`
+	RefreshToken     string           `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:varchar(511);index;not null"`
 	AuthProviderType AuthProviderType `json:"authProviderType" xml:"authproviderType" gorm:"column:auth_provider_type;not null"`
 } // @name AuthProvider
 
@@ -53,7 +53,7 @@ type Post struct {
 	Body  string `json:"body" xml:"body" gorm:"column:body;not null"`
 
 	// one-to-many relation
-	Comment []Comment `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:PostID"`
+	Comment []Comment `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:PostID"`
 } // @name Post
 
 // Represent business model for Comment
@@ -117,15 +117,5 @@ const (
 // declinder
 // https://github.com/settings/applications
 
-// TODO: remove
-// err := echo.FormFieldBinder(c).
-// 	MustString("postId", &a).
-// 	MustString("name", &b).
-// 	MustString("body", &z).
-// 	BindError()
-
-// TODO: remove auth routes mocks
-// https://stackoverflow.com/questions/43240970/how-to-mock-http-client-do-method
+// TODO: to read
 // https://dou.ua/lenta/articles/golang-httptest/
-// https://dev.to/clavinjune/mocking-http-call-in-golang-15i5
-// https://olegcodes.medium.com/mocking-http-services-in-go-6b76215a81c9
