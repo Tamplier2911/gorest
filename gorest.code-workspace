@@ -1,12 +1,14 @@
 {
     "folders": [
         {
+            "path": "cmd/app"
+        },
+        {
             "path": "internal"
         },
         {
             "path": "pkg"
         },
     ],
-    "settings": {
-    }
+    "settings": {}
 }

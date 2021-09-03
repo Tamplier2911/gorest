@@ -10,7 +10,7 @@ type Posts struct {
 	*service.Service
 }
 
-func (p *Posts) Setup(s *service.Service) {
+func (p Posts) Setup(s *service.Service) {
 	p.Service = s
 
 	// configure router
