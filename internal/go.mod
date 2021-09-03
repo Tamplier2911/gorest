@@ -13,9 +13,11 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.1.2
+	github.com/jarcoal/httpmock v1.0.8
 	github.com/labstack/echo/v4 v4.5.0
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/echo-swagger v1.1.2
 	github.com/swaggo/swag v1.7.1
 	golang.org/x/crypto v0.0.0-20210813211128-0a44fdfbc16e // indirect

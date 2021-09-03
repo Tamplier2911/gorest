@@ -24,43 +24,48 @@ type User struct {
 	Email     string   `json:"email" xml:"email" gorm:"column:email;index;not null"`
 	UserRole  UserRole `json:"userRole" xml:"userrole" gorm:"column:user_role;not null"`
 	AvatarURL string   `json:"avatarUrl" xml:"avatarurl" gorm:"column:avatar_url;"`
+
+	// one-to-many relations
+	Post         []Post         `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
+	Comment      []Comment      `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
+	AuthProvider []AuthProvider `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:UserID"`
 } // @name User
 
 type AuthProvider struct {
 	Base
 
-	UserID      uuid.UUID `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
-	ProviderUID string    `json:"providerUid" xml:"providerUid" gorm:"column:provider_uid;index;not null"`
+	// fk
+	UserID uuid.UUID `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
 
+	ProviderUID      string           `json:"providerUid" xml:"providerUid" gorm:"column:provider_uid;index;not null"`
+	RefreshToken     string           `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:varchar(511);index;not null"`
 	AuthProviderType AuthProviderType `json:"authProviderType" xml:"authproviderType" gorm:"column:auth_provider_type;not null"`
-	RefreshToken     string           `json:"refreshToken" xml:"refreshtoken" gorm:"column:refresh_token;type:char(255);index;not null"`
-
-	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
 } // @name AuthProvider
 
 // Represent business model of Post
 type Post struct {
 	Base
 
+	// fk
 	UserID uuid.UUID `json:"userId" xml:"userid" gorm:"column:user_id;type:char(36);index;not null"`
-	Title  string    `json:"title" xml:"title" gorm:"column:title;not null"`
-	Body   string    `json:"body" xml:"body" gorm:"column:body;not null"`
 
-	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
+	Title string `json:"title" xml:"title" gorm:"column:title;not null"`
+	Body  string `json:"body" xml:"body" gorm:"column:body;not null"`
+
+	// one-to-many relation
+	Comment []Comment `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;ForeignKey:PostID"`
 } // @name Post
 
 // Represent business model for Comment
 type Comment struct {
 	Base
 
+	// fk
 	PostID uuid.UUID `json:"postId" xml:"postId" gorm:"column:post_id;type:char(36);index;not null"`
 	UserID uuid.UUID `json:"userId" xml:"userId" gorm:"column:user_id;type:char(36);index;not null"`
 
 	Name string `json:"name" xml:"name" gorm:"column:name;not null"`
 	Body string `json:"body" xml:"body" gorm:"column:body;not null"`
-
-	Post Post `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PostID"`
-	User User `json:"-" xml:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
 } // @name Comment
 
 func (b *Base) BeforeCreate(tx *gorm.DB) (err error) {
@@ -111,3 +116,6 @@ const (
 // https://github.com/settings/developers
 // declinder
 // https://github.com/settings/applications
+
+// TODO: to read
+// https://dou.ua/lenta/articles/golang-httptest/

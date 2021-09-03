@@ -266,6 +266,63 @@ var doc = `{
                 }
             }
         },
+        "/auth/refresh": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Validate user token and produce token with prolonged expire data.",
+                "produces": [
+                    "application/json",
+                    "text/xml"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refreshes token.",
+                "operationId": "RefreshToken",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/comments": {
             "get": {
                 "description": "Gets comment records from database using provided query.",
@@ -849,6 +906,7 @@ var doc = `{
                     "type": "string"
                 },
                 "postId": {
+                    "description": "fk",
                     "type": "string"
                 },
                 "userId": {
@@ -969,6 +1027,18 @@ var doc = `{
                     "type": "string"
                 },
                 "userId": {
+                    "description": "fk",
+                    "type": "string"
+                }
+            }
+        },
+        "RefreshTokenResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -1064,14 +1134,8 @@ var doc = `{
                 "message": {
                     "type": "string"
                 },
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Post"
-                    }
-                },
-                "total": {
-                    "type": "integer"
+                "post": {
+                    "$ref": "#/definitions/Post"
                 }
             }
         }

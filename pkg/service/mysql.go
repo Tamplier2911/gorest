@@ -24,13 +24,6 @@ func (s *Service) NewMySQL() (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to my sqlserver: %s", err)
 	}
 
-	// create database
-	s.Logger.Info("initializing database")
-	err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", s.Config.MySQLDatabase)).Error
-	if err != nil {
-		s.Logger.Fatalw("failed to create database", "err", err)
-	}
-
 	// automigrate global models
 	// err = db.AutoMigrate(&models.User{})
 	// if err != nil {

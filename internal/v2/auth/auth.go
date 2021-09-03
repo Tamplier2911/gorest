@@ -17,7 +17,7 @@ type Auth struct {
 	GithubOauthConfig   *oauth2.Config
 }
 
-func (a *Auth) Setup(s *service.Service) {
+func (a Auth) Setup(s *service.Service) {
 	a.Service = s
 
 	// setup google oauth config
@@ -54,14 +54,16 @@ func (a *Auth) Setup(s *service.Service) {
 		ClientSecret: a.Config.GithubClientSecret,
 		RedirectURL:  a.Config.GithubRedirectURL,
 		Scopes:       []string{"user:email"},
-		// Scopes:   []string{"user"},
-		Endpoint: github.Endpoint,
+		Endpoint:     github.Endpoint,
 	}
 
 	// configure router
 	GithubAuthRouter := a.Echo.Group("/api/v2/auth/github")
 	GithubAuthRouter.GET("/login", a.GithubLoginHandler)
 	GithubAuthRouter.GET("/callback", a.GithubCallbackHandler)
+
+	AuthRouter := a.Echo.Group("/api/v2/auth")
+	AuthRouter.GET("/refresh", service.AuthenticationMiddleware(a.Logger, a.Config, a.RefreshTokenHandler))
 }
 
 // Writes response based on accept header

@@ -17,7 +17,7 @@ type Token struct {
 	UserRole models.UserRole `json:"userRole"`
 }
 
-// EncodeToken is used to encode Token to string.
+// EncodeToken is used to encode JWT Token to string.
 func EncodeToken(token *Token, hmacSecret string) (string, error) {
 	// create jwt token object
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, token)
@@ -29,6 +29,13 @@ func EncodeToken(token *Token, hmacSecret string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+// EncodeToken is used to encode JWT token to string ignoring error case.
+func MustEncodeToken(token *Token, hmacSecret string) string {
+	tokenString, _ := EncodeToken(token, hmacSecret)
+
+	return tokenString
 }
 
 // DecodeToken is used to verify and decode token from string.
