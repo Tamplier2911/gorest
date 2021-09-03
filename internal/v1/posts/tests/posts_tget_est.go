@@ -77,5 +77,4 @@ func TestGetPostsHandler(t *testing.T) {
 			require.NotEqual(t, prevPostId, c.ID, "got same post with different offset")
 		}
 	})
-
 }

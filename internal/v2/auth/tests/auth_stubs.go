@@ -9,7 +9,6 @@ import (
 
 // StubServices provides stubbing to third party services.
 func StubServices() func() {
-
 	googleFixtures := GetGoogleFixtures()
 	facebookFixtures := GetFacebookFixtures()
 	githubFixtures := GetGithubFixtures()
@@ -34,7 +33,6 @@ func StubServices() func() {
 				},
 			},
 		},
-
 		{
 			Name: "facebook-oauth2",
 			Handlers: []testclient.StubHandler{

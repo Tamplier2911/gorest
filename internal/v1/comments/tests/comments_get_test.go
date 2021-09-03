@@ -119,5 +119,4 @@ func TestGetCommentsHandler(t *testing.T) {
 			require.NotEqual(t, prevCommentId, c.ID, "got same comment with different offset")
 		}
 	})
-
 }

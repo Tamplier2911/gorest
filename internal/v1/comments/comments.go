@@ -37,5 +37,4 @@ func (c Comments) Setup(s *service.Service) {
 			w.WriteHeader(http.StatusNotFound)
 		}
 	})
-
 }
